@@ -38,7 +38,7 @@ local fixed_order = {
 	"Bed",			-- Beds
 }
 -- Split infotext line into keyed or unkeyed list. 
-function minimal.infotext_parse_key(line,keyed_list,unkeyed_list)
+function infotext_parse_key(line,keyed_list,unkeyed_list)
 	local ikey = line:find(':',1,true)
 	local key
 	if ikey then
@@ -59,7 +59,7 @@ end
 
 -- Get infotext from meta data and split it into lines.
 -- sort it into keyed and unkeyed lists and return the lists
-function minimal.infotext_parse_infotext(meta)
+function infotext_parse_infotext(meta)
 	local keyed = {} 
 	local unkeyed = {} -- lines without keys
 	local infotext_string = meta:get_string("infotext")
@@ -67,8 +67,9 @@ function minimal.infotext_parse_infotext(meta)
 --print("---------\nINFOTEXT:  "..infotext_string)
 		for line in infotext_string:gmatch("[^\r\n]+") do
 --print ("gmatch: "..line)
-			minimal.infotext_parse_key(line,keyed,unkeyed)
+			infotext_parse_key(line,keyed,unkeyed)
 		end
+		table.remove(unkeyed,1) -- remove the description from the old infotext
 	end
 --print ("old_lines: "..dump(keyed))
 --print ("unkeyed_lines:"..dump(unkeyed))
@@ -77,7 +78,7 @@ end
 
 -- Accept a string with a single infotext line or a table of multiple strings
 -- split the lines into keyed and unkeyed lists provided.
-function minimal.infotext_parse_new(lines,unkeyed)
+function infotext_parse_new(lines,unkeyed)
 	local keyed = {}
 	-- passed a string, convert it to the expected table
 	if lines and type(lines) == 'string' then
@@ -91,7 +92,7 @@ function minimal.infotext_parse_new(lines,unkeyed)
 	if lines and type(lines) == 'table' then
 		for _,line in ipairs(lines) do
 --print("parse_new - line: "..line)
-			minimal.infotext_parse_key(line,keyed,unkeyed)
+			infotext_parse_key(line,keyed,unkeyed)
 		end
 	end
 	return keyed
@@ -108,7 +109,7 @@ end
 -- Append keys to the output removing them from the append_list, and optionally a second list
 -- Intended for 2 passes, one with the new infotext lines and the old lines from meta data as
 -- the remove list. The second pass is with only the old lines and no additional remove lines.
-function minimal.infotext_append_keys(output_list, append_list, remove_list)
+function infotext_append_keys(output_list, append_list, remove_list)
 	if append_list then
 		for key,line in pairs(append_list) do
 			local new_line = table.removekey(append_list,key)
@@ -122,6 +123,44 @@ function minimal.infotext_append_keys(output_list, append_list, remove_list)
 	end
 end
 
+function infotext_append_unkeyed(output_lines,unkeyed)
+	-- append unkeyed lines
+	if #unkeyed > 0 then
+		for _, line in ipairs(unkeyed) do
+			-- Exclude the node description from unkeyed lines
+			if line and line ~= output_lines[1] then
+				table.insert(output_lines, line)
+			end
+		end
+	end
+end
+
+-- Generate infotext from a list of lines and save to meta
+function minimal.infotext_output_meta(meta,output_lines)
+	-- combine lines into string and set infotext
+	local text="";
+	for _,line in ipairs(output_lines) do
+		text = text .. line .. "\n"
+	end
+	text = text:sub(1, -2) -- remove last \n
+	meta:set_string("infotext",text)
+--print (text)
+	return text
+end
+
+function infotext_output_desc_owner(pos,meta)
+	local output_lines={}
+	-- Line 1 is always the item description
+	local desc = minetest.registered_nodes[minetest.get_node(pos).name].description
+	output_lines[1] = desc
+	-- Line 2 is always Owner if set
+	local owner = meta:get_string('owner')
+	if owner and owner ~= "" then
+		output_lines[2] = "Owner: " .. owner
+	end
+	return output_lines
+end
+
 
 -- Main funtion called from other modules.
 -- Takes the pos of the node being modifide, in string or pos object form and
@@ -132,10 +171,12 @@ end
 
 -- New keys replace old keys.
 -- If called with no lines, and no existing info text, The description of the node and 
--- name of the owner will be added.  Any info text added will also include these lines
--- using data from the node's description and owner meta data.
+-- name of the owner will be added.  Any infotext added will also include these lines
+-- using data from the node's description and meta data.
+-- remove_desc is an optional flag to remove the description from old infotext if it exists.
+-- 		fixes a problem for nodes that change with state changes.
 
-function minimal.set_infotext(pos,add_lines,meta)
+function minimal.set_infotext(pos, add_lines, meta)
 	if type(pos) == "string" then
 		pos = minetest.string_to_pos(pos)
 	end
@@ -145,20 +186,9 @@ function minimal.set_infotext(pos,add_lines,meta)
 		meta = minetest.get_meta(pos)
 	end
 
-	local old_lines,unkeyed = minimal.infotext_parse_infotext(meta)
-	
-	local output_lines={}
-	
-	-- Line 1 is always the item description
-	local desc = minetest.registered_nodes[minetest.get_node(pos).name].description
-	output_lines[1] = desc
-	-- Line 2 is always Owner if set
-	local owner = meta:get_string('owner')
-	if owner and owner ~= "" then
-		output_lines[2] = "Owner: " .. owner
-	end
-	
-	local new_lines = minimal.infotext_parse_new(add_lines,nil, unkeyed)
+	local output_lines=infotext_output_desc_owner(pos,meta)
+	local old_lines,unkeyed = infotext_parse_infotext(meta)
+	local new_lines = infotext_parse_new(add_lines, nil, unkeyed)
 --print_debug("Before Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
 	-- Use fixed_order list to find output_lines
 	for i, ordered_key in ipairs(fixed_order) do 
@@ -176,31 +206,26 @@ function minimal.set_infotext(pos,add_lines,meta)
 	end
 --print("*&*&*&*&*&*&*& "..dump(new_lines))
 --print_debug("After Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
-	minimal.infotext_append_keys(output_lines,new_lines,old_lines)
+	infotext_append_keys(output_lines,new_lines,old_lines)
 --print_debug("After Appending new Keys",old_lines,new_lines,unkeyed,output_lines)
-	minimal.infotext_append_keys(output_lines,old_lines)
+	infotext_append_keys(output_lines,old_lines)
 --print_debug("After Appending old Keys",old_lines,new_lines,unkeyed,output_lines)
-	-- append unkeyed lines
-	if #unkeyed > 0 then
-		for _, line in ipairs(unkeyed) do
-			-- Exclude the node description from unkeyed lines
-			if line and line ~= output_lines[1] then
-				table.insert(output_lines, line)
-			end
-		end
-	end
+	infotext_append_unkeyed(output_lines,unkeyed)
 
-print_debug("After Appending UNKEYED",old_lines,new_lines,unkeyed,output_lines)
-
-	-- combine lines into string and set infotext
-	local text="";
-	for _,line in ipairs(output_lines) do
-		text = text .. line .. "\n"
-	end
-	text = text:sub(1, -2) -- remove last \n
-	meta:set_string("infotext",text)
---print (text)
-	return text
+--print_debug("After Appending UNKEYED",old_lines,new_lines,unkeyed,output_lines)
+	return minimal.infotext_output_meta(meta,output_lines)
 end
 
 
+function minimal.infotext_delete_key(meta,key)
+	local infotext_string = meta:get_string("infotext")
+print(infotext_string)
+	if infotext_string ~= '' then
+print(key..':')
+		--XXX Not capturing the \n at the end of the line
+		infotext_string = infotext_string:gsub(key..':[^\n]+[\n]*','')
+	end
+	meta:set_string("infotext",infotext_string)
+print(infotext_string)
+end
+ 

@@ -267,7 +267,9 @@ local function do_teleport(pos, target_pos, random, player, range, regulator, po
 		meta_tran:set_string("target_name", "")
 		meta_tran:set_string("target_pos", "")
 		local tran_name = meta_tran:get_string("tran_name")
-		minimal.set_infotext(pos,"Location: "..trans_name)
+		minimal.infotext_delete_key(meta_tran,"Destination")
+--XXX This is wrong, Doesn't need to set a location, needs to remove a destination
+--		minimal.set_infotext(pos,"Location: "..trans_name,meta,true)
 -- 		if tran_name ~= "" then
 -- 			meta_tran:set_string("infotext", "Location: "..tran_name)
 -- 		else
