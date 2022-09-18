@@ -899,7 +899,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
 		minetest.get_node_timer(pos):start(30)
 	end,
 	on_timer = function(pos, elapsed)
---		local meta_tran = minetest.get_meta(pos)
+		local meta_tran = minetest.get_meta(pos)
 --		local target_name = meta_tran:get_string("target_name")
 --		local target_pos = meta_tran:get_string("target_pos")
 --		local tran_name = meta_tran:get_string("tran_name")
@@ -907,7 +907,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
 
 --		minetest.set_node(pos, {name = 'artifacts:transporter_pad'})
 
-		minimal.switch_node(power, {name = "artifacts:transporter_pad"})
+		minimal.switch_node(pos, {name = "artifacts:transporter_pad"})
 		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
 
 --		meta_tran:set_string("target_name", target_name)
