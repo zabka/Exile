@@ -413,18 +413,18 @@ local function transporter_rightclick(pos, node, player, itemstack, pointed_thin
 
 		--create charging pad and copy over meta data
 		local meta_tran = minetest.get_meta(pos)
-		local target_name = meta_tran:get_string("target_name")
-		local target_pos = meta_tran:get_string("target_pos")
-		local tran_name = meta_tran:get_string("tran_name")
-		local infotext = meta_tran:get_string("infotext")
-
-		minetest.set_node(pos, {name = "artifacts:transporter_pad_charging"})
+--		local target_name = meta_tran:get_string("target_name")
+--		local target_pos = meta_tran:get_string("target_pos")
+--		local tran_name = meta_tran:get_string("tran_name")
+--		local infotext = meta_tran:get_string("infotext")
+		minetest.swap_node(pos, {name="artifacts:transporter_pad_charging"})
+--		minetest.set_node(pos, {name = "artifacts:transporter_pad_charging"})
 		minetest.sound_play("artifacts_transport_charge", {pos = pos, gain = 2, max_hear_distance = 20})
 
-		meta_tran:set_string("target_name", target_name)
-		meta_tran:set_string("target_pos", target_pos)
-		meta_tran:set_string("tran_name", tran_name)
-		meta_tran:set_string("infotext", infotext)
+--		meta_tran:set_string("target_name", target_name)
+--		meta_tran:set_string("target_pos", target_pos)
+--		meta_tran:set_string("tran_name", tran_name)
+--		meta_tran:set_string("infotext", infotext)
 		meta_tran:set_string("tmp_dest", dest)
 		meta_tran:set_string("tmp_random", random)
 
@@ -832,15 +832,16 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 		minetest.get_node_timer(pos):start(20)
 	end,
 	on_timer = function(pos, elapsed)
-		local meta_tran = minetest.get_meta(pos)
-		local target_name = meta_tran:get_string("target_name")
-		local target_pos = meta_tran:get_string("target_pos")
-		local tran_name = meta_tran:get_string("tran_name")
-		local infotext = meta_tran:get_string("infotext")
-		local tmp_dest = meta_tran:get_string("tmp_dest")
-		local tmp_random = meta_tran:get_string("tmp_random")
+--		local meta_tran = minetest.get_meta(pos)
+--		local target_name = meta_tran:get_string("target_name")
+--		local target_pos = meta_tran:get_string("target_pos")
+--		local tran_name = meta_tran:get_string("tran_name")
+--		local infotext = meta_tran:get_string("infotext")
+--		local tmp_dest = meta_tran:get_string("tmp_dest")
+--		local tmp_random = meta_tran:get_string("tmp_random")
 
-		minetest.set_node(pos, {name = 'artifacts:transporter_pad_active'})
+	minetest.swap_node(pos, {name = "artifacts:transporter_pad_active"})
+--		minetest.set_node(pos, {name = 'artifacts:transporter_pad_active'})
 		minetest.sound_play("artifacts_transport_charged", {pos = pos, gain = 2, max_hear_distance = 20})
 		minetest.add_particlespawner({
 			amount = 15,
@@ -859,12 +860,12 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 			glow = 15,
 		})
 
-		meta_tran:set_string("target_name", target_name)
-		meta_tran:set_string("target_pos", target_pos)
-		meta_tran:set_string("tran_name", tran_name)
-		meta_tran:set_string("infotext", infotext)
-		meta_tran:set_string("tmp_dest", tmp_dest)
-		meta_tran:set_string("tmp_random", tmp_random)
+--		meta_tran:set_string("target_name", target_name)
+--		meta_tran:set_string("target_pos", target_pos)
+--		meta_tran:set_string("tran_name", tran_name)
+--		meta_tran:set_string("infotext", infotext)
+--		meta_tran:set_string("tmp_dest", tmp_dest)
+--		meta_tran:set_string("tmp_random", tmp_random)
 
 	end,
 })
@@ -898,19 +899,21 @@ minetest.register_node('artifacts:transporter_pad_active', {
 		minetest.get_node_timer(pos):start(30)
 	end,
 	on_timer = function(pos, elapsed)
-		local meta_tran = minetest.get_meta(pos)
-		local target_name = meta_tran:get_string("target_name")
-		local target_pos = meta_tran:get_string("target_pos")
-		local tran_name = meta_tran:get_string("tran_name")
-		local infotext = meta_tran:get_string("infotext")
+--		local meta_tran = minetest.get_meta(pos)
+--		local target_name = meta_tran:get_string("target_name")
+--		local target_pos = meta_tran:get_string("target_pos")
+--		local tran_name = meta_tran:get_string("tran_name")
+--		local infotext = meta_tran:get_string("infotext")
 
-		minetest.set_node(pos, {name = 'artifacts:transporter_pad'})
+--		minetest.set_node(pos, {name = 'artifacts:transporter_pad'})
+
+		minetest.swap_node(power, {name = "artifacts:transporter_pad"})
 		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
 
-		meta_tran:set_string("target_name", target_name)
-		meta_tran:set_string("target_pos", target_pos)
-		meta_tran:set_string("tran_name", tran_name)
-		meta_tran:set_string("infotext", infotext)
+--		meta_tran:set_string("target_name", target_name)
+--		meta_tran:set_string("target_pos", target_pos)
+--		meta_tran:set_string("tran_name", tran_name)
+--		meta_tran:set_string("infotext", infotext)
 		meta_tran:set_string("tmp_dest", "")
 		meta_tran:set_string("tmp_random", "")
 	end,
