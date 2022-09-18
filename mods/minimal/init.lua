@@ -27,7 +27,7 @@ dofile(minetest.get_modpath('minimal')..'/aliases.lua')
 dofile(minetest.get_modpath('minimal')..'/overrides.lua')
 dofile(minetest.get_modpath('minimal')..'/protection.lua')
 dofile(minetest.get_modpath('minimal')..'/utility.lua')
-
+dofile(minetest.get_modpath('minimal')..'/infotext.lua')
 -- GUI related stuff
 
 function minimal.set_hotbar(player,pref) 
