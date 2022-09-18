@@ -31,6 +31,7 @@ local fixed_order = {
 	"Location", 		-- Transporter Location
 	"Destination",  	-- Transporter Destination
 	"Description",  	-- Trigger Description
+	"Contents",		-- Cooking Pot Contents
 	"Status",		-- Cooking Pot status
 	"Note",			-- Note field (added for cooking pot)
 	"Dye Test Bundle",	-- Dye Bundles
@@ -48,7 +49,7 @@ function minimal.infotext_parse_key(line,keyed_list,unkeyed_list)
 		line = ""
 	end
 	if key then
-print("<<<"..(key or "")..">>>")
+--print("<<<"..(key or "")..">>>")
 		keyed_list[key] = line
 	else
 		table.insert(unkeyed_list,line)
@@ -63,14 +64,14 @@ function minimal.infotext_parse_infotext(meta)
 	local unkeyed = {} -- lines without keys
 	local infotext_string = meta:get_string("infotext")
 	if infotext_string ~= '' then
-print("---------\nINFOTEXT:  "..infotext_string)
+--print("---------\nINFOTEXT:  "..infotext_string)
 		for line in infotext_string:gmatch("[^\r\n]+") do
-print ("gmatch: "..line)
+--print ("gmatch: "..line)
 			minimal.infotext_parse_key(line,keyed,unkeyed)
 		end
 	end
-print ("old_lines: "..dump(keyed))
-print ("unkeyed_lines:"..dump(unkeyed))
+--print ("old_lines: "..dump(keyed))
+--print ("unkeyed_lines:"..dump(unkeyed))
 	return keyed,unkeyed
 end
 
@@ -86,10 +87,10 @@ function minimal.infotext_parse_new(lines,unkeyed)
 			table.insert(lines,line)
 		end
 	end
-print ("infotext_parse_new\n----\n"..dump(lines))
+--print ("infotext_parse_new\n----\n"..dump(lines))
 	if lines and type(lines) == 'table' then
 		for _,line in ipairs(lines) do
-print("parse_new - line: "..line)
+--print("parse_new - line: "..line)
 			minimal.infotext_parse_key(line,keyed,unkeyed)
 		end
 	end
@@ -108,8 +109,7 @@ end
 -- Intended for 2 passes, one with the new infotext lines and the old lines from meta data as
 -- the remove list. The second pass is with only the old lines and no additional remove lines.
 function minimal.infotext_append_keys(output_list, append_list, remove_list)
-	-- Any more keys in new_lines
-	if append_list and #append_list > 0 then
+	if append_list then
 		for key,line in pairs(append_list) do
 			local new_line = table.removekey(append_list,key)
 			if remove_list then
@@ -140,7 +140,7 @@ function minimal.set_infotext(pos,add_lines,meta)
 		pos = minetest.string_to_pos(pos)
 	end
 
-print ("***************************\n"..dump(pos))
+--print ("***************************\n"..dump(pos))
 	if not meta then
 		meta = minetest.get_meta(pos)
 	end
@@ -159,27 +159,27 @@ print ("***************************\n"..dump(pos))
 	end
 	
 	local new_lines = minimal.infotext_parse_new(add_lines,nil, unkeyed)
-print_debug("Before Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
+--print_debug("Before Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
 	-- Use fixed_order list to find output_lines
 	for i, ordered_key in ipairs(fixed_order) do 
 		local old_line=table.removekey(old_lines, ordered_key)
 		local new_line=table.removekey(new_lines, ordered_key)
 		if i > 1 then -- skip writing out Owner; already added above
 			if new_line then
-print ("NEW_LINE==="..new_line)
+--print ("NEW_LINE==="..new_line)
 				table.insert(output_lines,new_line)
 			elseif old_line then
-print ("OLD_LINE==="..old_line)
+--print ("OLD_LINE==="..old_line)
 				table.insert(output_lines,old_line)
 			end
 		end
 	end
-
-print_debug("After Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
-	minimal.infotext_append_keys(output_lines,new_lines,unkeyed,old_lines)
-print_debug("After Appending new Keys",old_lines,new_lines,unkeyed,output_lines)
+--print("*&*&*&*&*&*&*& "..dump(new_lines))
+--print_debug("After Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
+	minimal.infotext_append_keys(output_lines,new_lines,old_lines)
+--print_debug("After Appending new Keys",old_lines,new_lines,unkeyed,output_lines)
 	minimal.infotext_append_keys(output_lines,old_lines)
-print_debug("After Appending old Keys",old_lines,new_lines,unkeyed,output_lines)
+--print_debug("After Appending old Keys",old_lines,new_lines,unkeyed,output_lines)
 	-- append unkeyed lines
 	if #unkeyed > 0 then
 		for _, line in ipairs(unkeyed) do
@@ -199,7 +199,7 @@ print_debug("After Appending UNKEYED",old_lines,new_lines,unkeyed,output_lines)
 	end
 	text = text:sub(1, -2) -- remove last \n
 	meta:set_string("infotext",text)
-print (text)
+--print (text)
 	return text
 end
 

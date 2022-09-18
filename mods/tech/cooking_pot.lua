@@ -75,6 +75,7 @@ local function clear_pot(pos)
    local meta = minetest.get_meta(pos)
    minimal.set_infotext(pos,{
 	   "Status: Unprepared pot",
+	   "Contents: <EMPTY>",
 	   "Note: Add water to pot to make soup",
    },meta)
 --   meta:set_string("infotext", "Unprepared pot")
@@ -95,7 +96,8 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	 meta:set_string("type", "Soup")
 	 minimal.set_infotext(pos,{
 		 "Status: Soup Pot",
-		 "Note:"
+		 "Contents: Water",
+		 "Note: Add food to the pot to make soup"
 	 },meta)
 --	 meta:set_string("infotext", "Soup pot")
 	 meta:set_string("formspec", pot_formspec)
@@ -126,8 +128,17 @@ local function pot_receive_fields(pos, formname, fields, sender)
       end
       return
    end
+   local contents="" -- String containing list of pot contents
+   if meta:get_string('type') == 'Soup' then
+	   contents="Water, "
+   end
    for i = 1, #inv do
       local fname = inv[i]:get_name()
+      if fname ~= '' then
+	      local fcount = inv[i]:get_count()
+	      local fdesc = minetest.registered_nodes[fname].description
+	      contents=contents..' '..fdesc..' ('..fcount..'), '
+      end
       if food_table[fname] or food_table[fname.."_cooked"] then
 	 local result = food_table[fname.."_cooked"]
 	 if result == nil then -- prefer the cooked version, use raw if none
@@ -141,7 +152,13 @@ local function pot_receive_fields(pos, formname, fields, sender)
 	 end
       end
    end
-
+--print ("CONTENTS: "..contents)
+   contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
+--   meta:set_string('contents',contents)
+   minimal.set_infotext(pos, {
+	   "Contents: "..contents,
+	   "Note:",   -- Clear note about adding food
+   }, meta)
    local length = meta:get_int("baking")
    if length <= (cook_time - 4) then
       length = length + 4 -- don't open a cooking pot, you'll let the heat out
