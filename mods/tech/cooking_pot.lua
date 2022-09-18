@@ -73,11 +73,9 @@ minetest.register_craftitem("tech:soup", {
 
 local function clear_pot(pos)
    local meta = minetest.get_meta(pos)
-   minimal.set_infotext(pos,{
-	   "Status: Unprepared pot",
-	   "Contents: <EMPTY>",
-	   "Note: Add water to pot to make soup",
-   },meta)
+   minimal.infotext_set(pos,
+     "Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup",
+     meta)
 --   meta:set_string("infotext", "Unprepared pot")
    meta:set_string("formspec", "")
    meta:set_string("type", "")
@@ -94,11 +92,10 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
       local liquid = liquid_store.contents(itemname)
       if liquid == "nodes_nature:freshwater_source" then
 	 meta:set_string("type", "Soup")
-	 minimal.set_infotext(pos,{
-		 "Status: Soup Pot",
-		 "Contents: Water",
-		 "Note: Add food to the pot to make soup"
-	 },meta)
+	 minimal.infotext_set(pos,
+		"Status: Soup Pot\nContents: Water\n"
+		.."Note: Add food to the pot to make soup",
+	 	meta)
 --	 meta:set_string("infotext", "Soup pot")
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
@@ -155,7 +152,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
 --print ("CONTENTS: "..contents)
    contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
 --   meta:set_string('contents',contents)
-   minimal.set_infotext(pos, {
+   minimal.infotext_merge(pos, {
 	   "Contents: "..contents,
 	   "Note:",   -- Clear note about adding food
    }, meta)
@@ -209,7 +206,7 @@ local function pot_cook(pos, elapsed)
 			 imeta:set_string("eat_value", minetest.serialize(portion))
 			 imeta:set_string("description", S("@1 soup",firstingr))
 			 meta:get_inventory(pos):set_list("main", inv)
-			 minimal.set_infotext(pos, {
+			 minimal.infotext_merge(pos, {
 				"Contents: "..S("@1 soup",firstingr),
 				"Status: "..kind.." pot (finished)"
 			}, meta)
@@ -218,14 +215,14 @@ local function pot_cook(pos, elapsed)
 			 return
 		      elseif temp < cook_temp[kind] then
 			      meta:set_string("status", "cooling")
-			      minimal.set_infotext(pos, "Status: "..kind.." pot", meta)
+			      minimal.infotext_update_key(pos, 'Status', kind.." pot", meta)
 			      return
 		      elseif temp >= cook_temp[kind] then
 			 if meta:get_inventory():is_empty("main") then
 			    return
 			 end
 			 meta:set_string('status', 'cooking')
-			 minimal.set_infotext(pos, "Status: "..kind.." pot (cooking)", meta)
+			 minimal.infotext_update_key(pos, "Status", kind.." pot (cooking)", meta)
 		--	 meta:set_string("infotext", kind.." pot (cooking)")
 			 meta:set_int("baking", baking - 1)
 		      end
