@@ -565,8 +565,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local meta_tran = minetest.get_meta(pos_tran)
 		meta_tran:set_string("target_name", target_name)
 		meta_tran:set_string("target_pos", target_pos)
---XXX should be able to send meta_tran instead of pos_tran 
-		minimal.set_infotext(pos_tran,"Destination: "..target_name)
+		minimal.set_infotext(pos_tran,"Destination: "..target_name,meta_tran)
 --		local infotext = meta_tran:get_string("infotext")
 --		meta_tran:set_string("infotext", infotext.. "\nDestination: "..target_name)
 
@@ -690,8 +689,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		--set name and infotext of transporter
 		local meta_tran = minetest.get_meta(minetest.string_to_pos(target))
---XXX Should be able to pass meta_trans instead of target
-		minimal.set_infotext(target,"Location: "..target_name)
+		minimal.set_infotext(target,"Location: "..target_name,meta_tran)
 --		local infotext = meta_tran:get_string("infotext")
 --		meta_tran:set_string("infotext", infotext.. "\nLocation: "..target_name)
 		meta_tran:set_string("tran_name", target_name)
@@ -761,8 +759,7 @@ local function charge_power(pos, selfname, name, length)
 --		-- XXX shouldn't be clobbering existing info text
 --		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 		minetest.swap_node(pos, {name=name})
---XXX Should be able to use meta instead of pos
-		minimal.set_infotext(pos) -- Set Description and Owner
+		minimal.set_infotext(pos,nil,meta) -- Set Description and Owner
 		meta:set_float("temp", 14)
 		return false
 	elseif temp < charge_temp then

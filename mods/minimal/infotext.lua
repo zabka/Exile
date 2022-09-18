@@ -11,14 +11,16 @@
 
 minimal=minimal
 local S=minimal.S
-
+local debug = 0
 
 function print_debug(msg,old_lines,new_lines,unkeyed,output_lines)
-	print (msg)
-	print ("old_lines"..dump(old_lines))
-	print ("new_lines"..dump(new_lines))
-	print ("unkeyed: "..dump(unkeyed))
-	print ("output_lines: "..dump(output_lines))
+	if debug == 1 then
+		print (msg)
+		print ("old_lines"..dump(old_lines))
+		print ("new_lines"..dump(new_lines))
+		print ("unkeyed: "..dump(unkeyed))
+		print ("output_lines: "..dump(output_lines))
+	end
 end
 
 local fixed_order = {
@@ -29,15 +31,23 @@ local fixed_order = {
 	"Location", 		-- Transporter Location
 	"Destination",  	-- Transporter Destination
 	"Description",  	-- Trigger Description
+	"Status",		-- Cooking Pot status
+	"Note",			-- Note field (added for cooking pot)
 	"Dye Test Bundle",	-- Dye Bundles
 	"Bed",			-- Beds
 }
 -- Split infotext line into keyed or unkeyed list. 
 function minimal.infotext_parse_key(line,keyed_list,unkeyed_list)
 	local ikey = line:find(':',1,true)
+	local key
 	if ikey then
 		--remove ':' from key
-		local key = line:sub(1, ikey - 1)
+		key = line:sub(1, ikey - 1)
+	end
+	if #line == ikey then -- Nothing after ':' - delete this key
+		line = ""
+	end
+	if key then
 print("<<<"..(key or "")..">>>")
 		keyed_list[key] = line
 	else
@@ -105,7 +115,9 @@ function minimal.infotext_append_keys(output_list, append_list, remove_list)
 			if remove_list then
 				table.removekey(remove_list,key)
 			end
-			table.insert(output_list,new_line)
+			if new_line ~= "" then -- Empty lines don't get added to output
+				table.insert(output_list,new_line)
+			end
 		end
 	end
 end
@@ -123,13 +135,16 @@ end
 -- name of the owner will be added.  Any info text added will also include these lines
 -- using data from the node's description and owner meta data.
 
-function minimal.set_infotext(pos,add_lines)
+function minimal.set_infotext(pos,add_lines,meta)
 	if type(pos) == "string" then
 		pos = minetest.string_to_pos(pos)
 	end
 
 print ("***************************\n"..dump(pos))
-	local meta = minetest.get_meta(pos)
+	if not meta then
+		meta = minetest.get_meta(pos)
+	end
+
 	local old_lines,unkeyed = minimal.infotext_parse_infotext(meta)
 	
 	local output_lines={}
@@ -139,7 +154,7 @@ print ("***************************\n"..dump(pos))
 	output_lines[1] = desc
 	-- Line 2 is always Owner if set
 	local owner = meta:get_string('owner')
-	if owner then
+	if owner and owner ~= "" then
 		output_lines[2] = "Owner: " .. owner
 	end
 	

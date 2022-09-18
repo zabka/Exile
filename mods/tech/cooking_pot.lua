@@ -73,9 +73,14 @@ minetest.register_craftitem("tech:soup", {
 
 local function clear_pot(pos)
    local meta = minetest.get_meta(pos)
-   meta:set_string("infotext", "Unprepared pot")
+   minimal.set_infotext(pos,{
+	   "Status: Unprepared pot",
+	   "Note: Add water to pot to make soup",
+   },meta)
+--   meta:set_string("infotext", "Unprepared pot")
    meta:set_string("formspec", "")
    meta:set_string("type", "")
+   meta:set_string("status", "") -- "" = unprepared, "Cooking", "Finished"
    local inv = meta:get_inventory()
    inv:set_size("main", 8)
 end
@@ -83,11 +88,16 @@ end
 local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
    local meta = minetest.get_meta(pos)
    local itemname = itemstack:get_name()
-   if meta:get_string("type") == "" then
+   local status = meta:get_string("status")
+   if status == "" then  -- unprepared pot
       local liquid = liquid_store.contents(itemname)
       if liquid == "nodes_nature:freshwater_source" then
 	 meta:set_string("type", "Soup")
-	 meta:set_string("infotext", "Soup pot")
+	 minimal.set_infotext(pos,{
+		 "Status: Soup Pot",
+		 "Note:"
+	 },meta)
+--	 meta:set_string("infotext", "Soup pot")
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
 	 minetest.get_node_timer(pos):start(6)
@@ -98,6 +108,10 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	 end
       end
       return itemstack
+-- XXX Was going to add ability to take water out of a prepared pot but more complicated
+-- then expected will try again later
+--   elseif ptype == "Soup" then -- Pot has water, but not cooking
+
    end
    --TODO: use oil for fried food, saltwater for salted food (to preserve it)
 end
@@ -106,7 +120,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
    local meta = minetest.get_meta(pos)
    local inv = meta:get_inventory():get_list("main")
    local total = { 0, 0, 0, 0, 0 }
-   if meta:get_string("type") == "finished" then -- reset the pot for next cook
+   if meta:get_string("status") == "finished" then -- reset the pot for next cook
       if meta:get_inventory():is_empty("main") then
 	 clear_pot(pos)
       end
@@ -146,49 +160,60 @@ local function divide_portions(total)
 end
 
 local function pot_cook(pos, elapsed)
-   local meta = minetest.get_meta(pos)
-   local inv = meta:get_inventory():get_list("main")
-   local total = ( minetest.deserialize(meta:get_string("pot_contents")) or
+	local meta = minetest.get_meta(pos)
+	local inv = meta:get_inventory():get_list("main")
+	local total = ( minetest.deserialize(meta:get_string("pot_contents")) or
 		      { 0, 0, 0, 0 } )
-   local kind = meta:get_string("type")
-   climate.heat_transfer(pos, "tech:cooking_pot")
-   local temp = climate.get_point_temp(pos)
-   local baking = meta:get_int("baking")
-   if kind == "Soup" then -- or kind == "etc"; this only runs if we're cooking
-      if baking <= 0 then
-	 local firstingr = inv[1]:get_description()
-	 if firstingr then
-	    firstingr = firstingr:gsub(" %(uncooked%)","")
-	    firstingr = firstingr:gsub("Unbaked ","")
-	    firstingr = firstingr:gsub(" Carcass","")
-	    firstingr = firstingr.." "
-	 end
-	 for i = 1, #inv do
-	    inv[i]:clear()
-	 end
-	 inv[1]:replace(ItemStack("tech:soup "..portions))
-	 local imeta = inv[1]:get_meta()
-	 local portion = divide_portions(total)
-	 if kind == "Soup" then -- add water to the soup
-	    portion[2] = portion[2] + (100 / portions)
-	 end
-	 imeta:set_string("eat_value", minetest.serialize(portion))
-	 imeta:set_string("description", S("@1 soup",firstingr))
-	 meta:get_inventory(pos):set_list("main", inv)
-	 meta:set_string("infotext", kind.." pot (finished)")
-	 meta:set_string("type", "finished")
-	 return
-      elseif temp < cook_temp[kind] then
-	 return
+	local kind = meta:get_string("type")
+	climate.heat_transfer(pos, "tech:cooking_pot")
+	local temp = climate.get_point_temp(pos)
+	local baking = meta:get_int("baking")
+	local status = meta:get_string("status")
+	if status == "finished" then
+		-- Handle burning food here
 	    --TODO: burned: reduce th value of pot_contents, emit more smoke
-      elseif temp >= cook_temp[kind] then
-	 if meta:get_inventory():is_empty("main") then
-	    return
-	 end
-	 meta:set_string("infotext", kind.." pot (cooking)")
-	 meta:set_int("baking", baking - 1)
-      end
-   end
+	else 
+		if kind == "Soup" then -- or kind == "etc"; this only runs if we're cooking
+		      if baking <= 0 then
+			 local firstingr = inv[1]:get_description()
+			 if firstingr then
+			    firstingr = firstingr:gsub(" %(uncooked%)","")
+			    firstingr = firstingr:gsub("Unbaked ","")
+			    firstingr = firstingr:gsub(" Carcass","")
+			    firstingr = firstingr.." "
+			 end
+			 for i = 1, #inv do
+			    inv[i]:clear()
+			 end
+			 inv[1]:replace(ItemStack("tech:soup "..portions))
+			 local imeta = inv[1]:get_meta()
+			 local portion = divide_portions(total)
+			 portion[2] = portion[2] + (100 / portions)
+			 imeta:set_string("eat_value", minetest.serialize(portion))
+			 imeta:set_string("description", S("@1 soup",firstingr))
+			 meta:get_inventory(pos):set_list("main", inv)
+			 minimal.set_infotext(pos, {
+				"Contents: "..S("@1 soup",firstingr),
+				"Status: "..kind.." pot (finished)"
+			}, meta)
+			 meta:set_string("status", "finished")
+		--	 meta:set_string("infotext", kind.." pot (finished)")
+			 return
+		      elseif temp < cook_temp[kind] then
+			      meta:set_string("status", "cooling")
+			      minimal.set_infotext(pos, "Status: "..kind.." pot", meta)
+			      return
+		      elseif temp >= cook_temp[kind] then
+			 if meta:get_inventory():is_empty("main") then
+			    return
+			 end
+			 meta:set_string('status', 'cooking')
+			 minimal.set_infotext(pos, "Status: "..kind.." pot (cooking)", meta)
+		--	 meta:set_string("infotext", kind.." pot (cooking)")
+			 meta:set_int("baking", baking - 1)
+		      end
+		end -- Soup
+	end -- status == finished
 end
 
 local function calc_baking_time(stack)
@@ -231,9 +256,9 @@ minetest.register_node("tech:cooking_pot", {
 	on_dig = function(pos, node, digger)
 	   local meta = minetest.get_meta(pos)
 	   local inv = meta:get_inventory()
-	   local info = meta:get_string("type")
-	   if ( not inv:is_empty("main") )
-	      or info == "Soup" then -- or fry pot, salting pot
+	   local ptype = meta:get_string("type")
+	   if ( not inv:is_empty("main") 
+	      or ptype ~= "") then -- type is empty on uprepared pot
 	      return false
 	   end
 	   minetest.node_dig(pos, node, digger)
@@ -252,7 +277,7 @@ minetest.register_node("tech:cooking_pot", {
 	      return 0
 	   end
 	   local meta = minetest.get_meta(pos)
-	   if meta:get_string("type") == "finished" then
+	   if meta:get_string("status") == "finished" then
 		--prevent adding items after cooking is complete
 		return 0
 	   end
@@ -272,8 +297,9 @@ minetest.register_node("tech:cooking_pot", {
 	allow_metadata_inventory_take = function(
 	      pos, listname, index, stack, player)
 	   local meta = minetest.get_meta(pos)
-	   if string.sub(meta:get_string("infotext"), -9) == "(cooking)" then
-		--prevent removing items once cooking begins
+	   local status = meta:get_string("status")
+	   --prevent removing items once cooking begins
+	   if status ~= "" and status ~= "finished" then -- "" means cooking never started.
 		return 0
 	   end
 	   meta:set_int("baking", meta:get_int("baking")
