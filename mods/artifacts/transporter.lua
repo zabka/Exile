@@ -78,7 +78,7 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 -- 	local description = minetest.registered_nodes["artifacts:transporter_power_dep"].description
 -- 	-- XXX shouldn't be clobbering existing info text
 -- 	meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
-	minetest.swap_node(power, {name = "artifacts:transporter_power_dep"})
+	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
 	minimal.set_infotext(power) -- set node description and owner
 	set_charging(power, 5, 20)
 	--go to target
@@ -417,7 +417,7 @@ local function transporter_rightclick(pos, node, player, itemstack, pointed_thin
 --		local target_pos = meta_tran:get_string("target_pos")
 --		local tran_name = meta_tran:get_string("tran_name")
 --		local infotext = meta_tran:get_string("infotext")
-		minetest.swap_node(pos, {name="artifacts:transporter_pad_charging"})
+		minimal.switch_node(pos, {name="artifacts:transporter_pad_charging"})
 --		minetest.set_node(pos, {name = "artifacts:transporter_pad_charging"})
 		minetest.sound_play("artifacts_transport_charge", {pos = pos, gain = 2, max_hear_distance = 20})
 
@@ -760,7 +760,7 @@ local function charge_power(pos, selfname, name, length)
 --		local description = minetest.registered_nodes[name].description
 --		-- XXX shouldn't be clobbering existing info text
 --		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
-		minetest.swap_node(pos, {name=name})
+		minimal.switch_node(pos, {name=name})
 		minimal.set_infotext(pos,nil,meta) -- Set Description and Owner
 		meta:set_float("temp", 14)
 		return false
@@ -840,7 +840,7 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 --		local tmp_dest = meta_tran:get_string("tmp_dest")
 --		local tmp_random = meta_tran:get_string("tmp_random")
 
-	minetest.swap_node(pos, {name = "artifacts:transporter_pad_active"})
+		minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
 --		minetest.set_node(pos, {name = 'artifacts:transporter_pad_active'})
 		minetest.sound_play("artifacts_transport_charged", {pos = pos, gain = 2, max_hear_distance = 20})
 		minetest.add_particlespawner({
@@ -907,7 +907,7 @@ minetest.register_node('artifacts:transporter_pad_active', {
 
 --		minetest.set_node(pos, {name = 'artifacts:transporter_pad'})
 
-		minetest.swap_node(power, {name = "artifacts:transporter_pad"})
+		minimal.switch_node(power, {name = "artifacts:transporter_pad"})
 		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
 
 --		meta_tran:set_string("target_name", target_name)
