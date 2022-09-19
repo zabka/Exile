@@ -520,3 +520,21 @@ crafting.register_recipe({
 	always_known = true,
 })
 
+-- Protection Nails
+minetest.register_craftitem("tech:nails", {
+        description = S("Protection Nails"),
+        inventory_image = "tech_iron_nails.png",
+        stack_max = minimal.stack_max_light,
+	on_use = minimal.protection_nail_use
+})
+
+
+crafting.register_recipe({
+	type = "anvil",
+	output = "tech:nails 8",
+	items = {'tech:iron_ingot 1',},
+	level = 1,
+	always_known = true,
+})
+
+
