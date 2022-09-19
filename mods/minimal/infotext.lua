@@ -166,13 +166,14 @@ function infotext.append_desc_owner(pos,meta, output_lines)
 	end
 	return output
 end
+
+-- Generate output text for description and owner
 function infotext.output_desc_owner(pos,meta)
 	local output
 	local output = minetest.registered_nodes[minetest.get_node(pos).name].description
-		.."\n"
 	local owner = meta:get_string('owner')
 	if owner and owner ~= "" then
-		output = output .. 'Owner: ' .. owner
+		output = output .. '\nOwner: ' .. owner
 	end
 	return output
 end
@@ -215,19 +216,19 @@ function minimal.infotext_merge(pos, add_lines, meta)
 		meta = minetest.get_meta(pos)
 	end
 
-print ("***************************\n"..dump(pos))
+--print ("***************************\n"..dump(pos))
 	local output_lines = infotext.append_desc_owner(pos,meta)
 	local old_lines,unkeyed = infotext.parse_meta(meta)
 	local new_lines = infotext.parse_new(add_lines, nil, unkeyed)
-infotext.print_debug("Before Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
+--infotext.print_debug("Before Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_fixed_order(output_lines,old_lines,new_lines)
-infotext.print_debug("After Append Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
+--infotext.print_debug("After Append Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_keys(output_lines,new_lines,old_lines)
-infotext.print_debug("After Appending new Keys",old_lines,new_lines,unkeyed,output_lines)
+--infotext.print_debug("After Appending new Keys",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_keys(output_lines,old_lines)
-infotext.print_debug("After Appending old Keys",old_lines,new_lines,unkeyed,output_lines)
+--infotext.print_debug("After Appending old Keys",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_unkeyed(output_lines,unkeyed)
-infotext.print_debug("After Appending UNKEYED",old_lines,new_lines,unkeyed,output_lines)
+--infotext.print_debug("After Appending UNKEYED",old_lines,new_lines,unkeyed,output_lines)
 	local out= minimal.infotext_output_meta(meta,output_lines)
 --print(out)
 	return out
@@ -236,8 +237,10 @@ end
 -- Sets infotext description and owner and infotext as provided
 function minimal.infotext_set(pos,meta,text)
 	local output = infotext.output_desc_owner(pos,meta)
-	output=output..text
-print("[minimal.infotext_set()]\n"..output.."\n--------------\n")
+	if text and text ~= "" then
+		output=output.."\n"..text
+	end
+--print("[minimal.infotext_set()]\n"..output.."\n--------------\n")
 	meta:set_string("infotext",output)
 end
 
