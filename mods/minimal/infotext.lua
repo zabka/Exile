@@ -246,7 +246,7 @@ function minimal.infotext_set(pos,meta,text)
 --print("[minimal.infotext_set()]\n"..output.."\n--------------\n")
 	meta:set_string("infotext",output)
 end
-
+--XXX More testing needed on this
 function minimal.infotext_delete_key(meta,key)
 	local infotext_string = meta:get_string("infotext")
 --print(infotext_string)
@@ -259,6 +259,7 @@ function minimal.infotext_delete_key(meta,key)
 --print(infotext_string)
 end
 
+--XXX More testing needed on this
 --update a key in infotext
 function minimal.infotext_update_key(pos,key,text,meta)
 print("---------------[minimal.infotext_update_key]-----------")
@@ -273,6 +274,7 @@ print(infotext_string)
 print("------------------------------------------------------")
 end
 
+--XXX Testing needed on this
 --update a description in infotext
 function minimal.infotext_update_desc(pos,key,text,meta)
 	local infotext_string = meta:get_string("infotext")

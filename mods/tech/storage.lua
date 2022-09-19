@@ -406,8 +406,7 @@ minetest.register_node("tech:iron_chest", {
 		local pn = placer:get_player_name()
 		local meta = minetest.get_meta(pos)
 		meta:set_string("owner", pn)
-		meta:set_string("infotext", itemstack:get_definition().description .. "\n" .. S("Owned by @1", pn))
-
+		minimal.infotext_set(pos,meta)
 		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
 
