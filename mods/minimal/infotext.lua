@@ -11,8 +11,25 @@
 
 minimal=minimal
 infotext={}
-local S=minimal.S
-local debug = 0
+local S=infotext.S
+local debug = 1
+
+-- Preferred order of keys. Not all keys will be on all nodes. This insures
+-- nodes with multiple keyed values always appear in the same order.
+infotext.fixed_order = {
+--	"", 			-- node description - unkeyed but fixed as first line
+	"Owner",		-- Node Owner
+	"Label",		-- Custom Label
+	"Creator",		-- Node Creator
+	"Location", 		-- Transporter Location
+	"Destination",  	-- Transporter Destination
+	"Description",  	-- Trigger Description
+	"Contents",		-- Cooking Pot Contents
+	"Status",		-- Cooking Pot status
+	"Note",			-- Note field (added for cooking pot)
+	"Dye Test Bundle",	-- Dye Bundles
+	"Bed",			-- Beds
+}
 
 function table.removekey(table, key)
 	if table and type(table) == 'table' then
@@ -34,22 +51,6 @@ function infotext.print_debug(msg,old_lines,new_lines,unkeyed,output_lines)
 end
 
 
--- Preferred order of keys. Not all keys will be on all nodes. This insures
--- nodes with multiple keyed values always appear in the same order.
-infotext.fixed_order = {
---	"", 			-- node description - unkeyed but fixed as first line
-	"Owner",		-- Node Owner
-	"Label",		-- Custom Label
-	"Creator",		-- Node Creator
-	"Location", 		-- Transporter Location
-	"Destination",  	-- Transporter Destination
-	"Description",  	-- Trigger Description
-	"Contents",		-- Cooking Pot Contents
-	"Status",		-- Cooking Pot status
-	"Note",			-- Note field (added for cooking pot)
-	"Dye Test Bundle",	-- Dye Bundles
-	"Bed",			-- Beds
-}
 -- Split infotext line into keyed or unkeyed list. 
 function infotext.parse_key(line,keyed_list,unkeyed_list)
 	local ikey = line:find(':',1,true)
@@ -153,22 +154,32 @@ function minimal.infotext_output_meta(meta,output_lines)
 	return text
 end
 
-function infotext.output_desc_owner(pos,meta)
-	local output_lines={}
+function infotext.append_desc_owner(pos,meta, output_lines)
+	local output=output_lines or {}
 	-- Line 1 is always the item description
 	local desc = minetest.registered_nodes[minetest.get_node(pos).name].description
-	output_lines[1] = desc
+	output[1] = desc
 	-- Line 2 is always Owner if set
 	local owner = meta:get_string('owner')
 	if owner and owner ~= "" then
-		output_lines[2] = "Owner: " .. owner
+		output[2] = "Owner: " .. owner
 	end
-	return output_lines
+	return output
+end
+function infotext.output_desc_owner(pos,meta)
+	local output
+	local output = minetest.registered_nodes[minetest.get_node(pos).name].description
+		.."\n"
+	local owner = meta:get_string('owner')
+	if owner and owner ~= "" then
+		output = output .. 'Owner: ' .. owner
+	end
+	return output
 end
 
 function infotext.append_fixed_order(output_lines,old_lines,new_lines)
 	-- Use fixed_order list to find output_lines
-	for i, ordered_key in ipairs(fixed_order) do 
+	for i, ordered_key in ipairs(infotext.fixed_order) do 
 		local old_line=table.removekey(old_lines, ordered_key)
 		local new_line=table.removekey(new_lines, ordered_key)
 		if i > 1 then -- skip writing out Owner; already added above
@@ -204,26 +215,29 @@ function minimal.infotext_merge(pos, add_lines, meta)
 		meta = minetest.get_meta(pos)
 	end
 
---print ("***************************\n"..dump(pos))
-	local output_lines=infotext.output_desc_owner(pos,meta)
+print ("***************************\n"..dump(pos))
+	local output_lines = infotext.append_desc_owner(pos,meta)
 	local old_lines,unkeyed = infotext.parse_meta(meta)
 	local new_lines = infotext.parse_new(add_lines, nil, unkeyed)
---print_debug("Before Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
+infotext.print_debug("Before Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_fixed_order(output_lines,old_lines,new_lines)
---print_debug("After Append Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
+infotext.print_debug("After Append Ordered Lines",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_keys(output_lines,new_lines,old_lines)
---print_debug("After Appending new Keys",old_lines,new_lines,unkeyed,output_lines)
+infotext.print_debug("After Appending new Keys",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_keys(output_lines,old_lines)
---print_debug("After Appending old Keys",old_lines,new_lines,unkeyed,output_lines)
+infotext.print_debug("After Appending old Keys",old_lines,new_lines,unkeyed,output_lines)
 	infotext.append_unkeyed(output_lines,unkeyed)
---print_debug("After Appending UNKEYED",old_lines,new_lines,unkeyed,output_lines)
-	return minimal.infotext_output_meta(meta,output_lines)
+infotext.print_debug("After Appending UNKEYED",old_lines,new_lines,unkeyed,output_lines)
+	local out= minimal.infotext_output_meta(meta,output_lines)
+--print(out)
+	return out
 end
 
 -- Sets infotext description and owner and infotext as provided
-function minimal.infotext_set(pos,meta,infotext)
-	local output=infotext.output_desc_owner(pos,meta)
-	output=output..infotext
+function minimal.infotext_set(pos,meta,text)
+	local output = infotext.output_desc_owner(pos,meta)
+	output=output..text
+print("[minimal.infotext_set()]\n"..output.."\n--------------\n")
 	meta:set_string("infotext",output)
 end
 
@@ -241,13 +255,16 @@ end
 
 --update a key in infotext
 function minimal.infotext_update_key(pos,key,text,meta)
+print("---------------[minimal.infotext_update_key]-----------")
 	local infotext_string = meta:get_string("infotext")
---print(infotext_string)
+print(infotext_string)
 	if infotext_string ~= '' then
 		infotext_string = infotext_string:gsub('('..key..":)[^\n]+","%1 "..text)
 	end
 	meta:set_string("infotext",infotext_string)
---print(key..":')
+print(key..":")
+print(infotext_string)
+print("------------------------------------------------------")
 end
 
 --update a description in infotext

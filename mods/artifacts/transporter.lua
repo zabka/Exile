@@ -79,7 +79,7 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 -- 	-- XXX shouldn't be clobbering existing info text
 -- 	meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
-	minimal.set_infotext(power) -- set node description and owner
+	minimal.infotext_set(power) -- set node description and owner
 	set_charging(power, 5, 20)
 	--go to target
 	player:set_pos(target_pos)
@@ -382,7 +382,7 @@ local function transporter_power_rightclick(pos, node, player, itemstack, pointe
 
 	itemstack:take_item()
 	minimal.switch_node(pos, {name=swap_a})
-	minimal.set_infotext(pos) -- Set description and owner of swapped core
+	minimal.infotext_set(pos) -- Set description and owner of swapped core
 	if pInv:room_for_item("main", new) then
 	   pInv:add_item("main", new)
 	   return itemstack
@@ -567,7 +567,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local meta_tran = minetest.get_meta(pos_tran)
 		meta_tran:set_string("target_name", target_name)
 		meta_tran:set_string("target_pos", target_pos)
-		minimal.set_infotext(pos_tran,"Destination: "..target_name,meta_tran)
+		minimal.infotext_merge(pos_tran,"Destination: "..target_name,meta_tran)
 --		local infotext = meta_tran:get_string("infotext")
 --		meta_tran:set_string("infotext", infotext.. "\nDestination: "..target_name)
 
@@ -691,7 +691,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		--set name and infotext of transporter
 		local meta_tran = minetest.get_meta(minetest.string_to_pos(target))
-		minimal.set_infotext(target,"Location: "..target_name,meta_tran)
+		minimal.infotext_merge(target,"Location: "..target_name,meta_tran)
 --		local infotext = meta_tran:get_string("infotext")
 --		meta_tran:set_string("infotext", infotext.. "\nLocation: "..target_name)
 		meta_tran:set_string("tran_name", target_name)
@@ -761,7 +761,7 @@ local function charge_power(pos, selfname, name, length)
 --		-- XXX shouldn't be clobbering existing info text
 --		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 		minimal.switch_node(pos, {name=name})
-		minimal.set_infotext(pos,nil,meta) -- Set Description and Owner
+		minimal.infotext_set(pos,nil,meta) -- Set Description and Owner
 		meta:set_float("temp", 14)
 		return false
 	elseif temp < charge_temp then
