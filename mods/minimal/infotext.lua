@@ -236,6 +236,9 @@ end
 
 -- Sets infotext description and owner and infotext as provided
 function minimal.infotext_set(pos,meta,text)
+	if not meta then
+		meta = minetest.get_meta(pos)
+	end
 	local output = infotext.output_desc_owner(pos,meta)
 	if text and text ~= "" then
 		output=output.."\n"..text
