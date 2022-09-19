@@ -19,8 +19,8 @@ local debug = 1
 infotext.fixed_order = {
 --	"", 			-- node description - unkeyed but fixed as first line
 	"Owner",		-- Node Owner
-	"Label",		-- Custom Label
 	"Creator",		-- Node Creator
+	"Label",		-- Custom Label
 	"Location", 		-- Transporter Location
 	"Destination",  	-- Transporter Destination
 	"Description",  	-- Trigger Description
@@ -67,12 +67,12 @@ function infotext.parse_key(line,keyed_list,unkeyed_list)
 		keyed_list[key] = line
 	else
 		table.insert(unkeyed_list,line)
-
 	end
 end
 
 -- Get infotext from meta data and split it into lines.
 -- sort it into keyed and unkeyed lists and return the lists
+-- The first unkeyed entry is assumed to be the description and is removed
 function infotext.parse_meta(meta)
 	local keyed = {} 
 	local unkeyed = {} -- lines without keys
@@ -129,6 +129,7 @@ function infotext.append_keys(output_list, append_list, remove_list)
 	end
 end
 
+-- Append unkeyed entires to output list.
 function infotext.append_unkeyed(output_lines,unkeyed)
 	-- append unkeyed lines
 	if #unkeyed > 0 then
@@ -154,6 +155,8 @@ function minimal.infotext_output_meta(meta,output_lines)
 	return text
 end
 
+-- Append description and owner to the output list
+-- Creates an empty output list if not passed one
 function infotext.append_desc_owner(pos,meta, output_lines)
 	local output=output_lines or {}
 	-- Line 1 is always the item description
@@ -178,6 +181,8 @@ function infotext.output_desc_owner(pos,meta)
 	return output
 end
 
+-- Append fixed order entries to the output. New lines are preferred over
+-- old lines.  Removed from both lists
 function infotext.append_fixed_order(output_lines,old_lines,new_lines)
 	-- Use fixed_order list to find output_lines
 	for i, ordered_key in ipairs(infotext.fixed_order) do 
@@ -202,11 +207,8 @@ end
 -- key: Infotext line to add/replace
 
 -- New keys replace old keys.
--- If called with no lines, and no existing info text, The description of the node and 
--- name of the owner will be added.  Any infotext added will also include these lines
--- using data from the node's description and meta data.
--- remove_desc is an optional flag to remove the description from old infotext if it exists.
--- 		fixes a problem for nodes that change with state changes.
+-- The description of the node and name of the owner will be generated from the node
+-- definition and meta:owner param.  
 
 function minimal.infotext_merge(pos, add_lines, meta)
 	if type(pos) == "string" then
