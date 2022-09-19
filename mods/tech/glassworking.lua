@@ -450,7 +450,6 @@ minetest.register_node("tech:pane_tray",
 	paramtype2 = "facedir",
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
 	sunlight_propagates = true,
-	after_place_node = minimal.protection_after_place_node,
 })
 
 -- Trays with glass panes
@@ -655,7 +654,6 @@ minetest.register_node("tech:glass_bottle_green", {
 	paramtype = "light",
 	liquids_pointable = true,
 	sunlight_prpagates = true,
---	after_place_node = minimal.protection_after_place_node,
 	on_use = function(itemstack, user, pointed_thing)
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
@@ -682,7 +680,6 @@ minetest.register_node("tech:glass_bottle_clear", {
 	paramtype = "light",
 	liquids_pointable = true,
 	sunlight_prpagates = true,
---	after_place_node = minimal.protection_after_place_node,
 	on_use = function(itemstack, user, pointed_thing)
 		return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
 	end,
@@ -765,7 +762,6 @@ minetest.override_item("tech:glass_bottle_green_saltwater",
 		fixed={-0.25, -0.5, -0.25, 0.25, 0.35, 0.25},
 	},
 	inventory_image = "tech_bottle_green_icon.png",
---	after_place_node = minimal.protection_after_place_node,
 })
 
 liquid_store.register_stored_liquid(
@@ -811,7 +807,6 @@ minetest.override_item("tech:glass_bottle_clear_saltwater",
 	},
 
 	inventory_image = "tech_bottle_clear_icon.png",
---	after_place_node = minimal.protection_after_place_node,
 })
 
 
@@ -878,7 +873,6 @@ minetest.override_item("tech:glass_bottle_green_freshwater",
 			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
 		end
 	end,
---	after_place_node = minimal.protection_after_place_node,
 
 })
 
@@ -948,6 +942,5 @@ minetest.override_item("tech:glass_bottle_clear_freshwater",
 					     max_hear_distance = 3, gain = 0.25})
 		end
 	end,
---	after_place_node = minimal.protection_after_place_node,
 
 })
