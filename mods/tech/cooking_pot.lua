@@ -73,9 +73,9 @@ minetest.register_craftitem("tech:soup", {
 
 local function clear_pot(pos)
    local meta = minetest.get_meta(pos)
-   minimal.infotext_set(pos,
-     "Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup",
-     meta)
+print ('---------------76------------')
+   minimal.infotext_set(pos,meta,
+     "Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup")
 --   meta:set_string("infotext", "Unprepared pot")
    meta:set_string("formspec", "")
    meta:set_string("type", "")
@@ -92,10 +92,10 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
       local liquid = liquid_store.contents(itemname)
       if liquid == "nodes_nature:freshwater_source" then
 	 meta:set_string("type", "Soup")
-	 minimal.infotext_set(pos,
+print ('---------------95------------')
+	 minimal.infotext_set(pos,meta,
 		"Status: Soup Pot\nContents: Water\n"
-		.."Note: Add food to the pot to make soup",
-	 	meta)
+		.."Note: Add food to the pot to make soup")
 --	 meta:set_string("infotext", "Soup pot")
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
@@ -152,10 +152,14 @@ local function pot_receive_fields(pos, formname, fields, sender)
 --print ("CONTENTS: "..contents)
    contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
 --   meta:set_string('contents',contents)
-   minimal.infotext_merge(pos, {
-	   "Contents: "..contents,
-	   "Note:",   -- Clear note about adding food
-   }, meta)
+
+print ('---------------156------------')
+--   minimal.infotext_merge(pos, {
+--	   "Contents: "..contents,
+--	   "Note:",   -- Clear note about adding food
+--   }, meta)
+   minimal.infotext_set(pos, meta,"Contents: "..contents)
+
    local length = meta:get_int("baking")
    if length <= (cook_time - 4) then
       length = length + 4 -- don't open a cooking pot, you'll let the heat out
@@ -163,6 +167,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
       meta:set_int("baking", length)
    end
    meta:set_string("pot_contents", minetest.serialize(total))
+print ("pot_receive_fields - end")
 end
 
 local function divide_portions(total)
@@ -206,6 +211,7 @@ local function pot_cook(pos, elapsed)
 			 imeta:set_string("eat_value", minetest.serialize(portion))
 			 imeta:set_string("description", S("@1 soup",firstingr))
 			 meta:get_inventory(pos):set_list("main", inv)
+print ('---------------210------------')
 			 minimal.infotext_merge(pos, {
 				"Contents: "..S("@1 soup",firstingr),
 				"Status: "..kind.." pot (finished)"
@@ -214,15 +220,21 @@ local function pot_cook(pos, elapsed)
 		--	 meta:set_string("infotext", kind.." pot (finished)")
 			 return
 		      elseif temp < cook_temp[kind] then
-			      meta:set_string("status", "cooling")
-			      minimal.infotext_update_key(pos, 'Status', kind.." pot", meta)
+			      if status ~= 'cooling' then
+				      meta:set_string("status", "cooling")
+print ('---------------221------------')
+				      minimal.infotext_merge(pos, 'Status: '..kind.." pot", meta)
+			      end
 			      return
 		      elseif temp >= cook_temp[kind] then
 			 if meta:get_inventory():is_empty("main") then
 			    return
 			 end
-			 meta:set_string('status', 'cooking')
-			 minimal.infotext_update_key(pos, "Status", kind.." pot (cooking)", meta)
+			 if status ~= 'cooking' then
+				 meta:set_string('status', 'cooking')
+print ('---------------231------------')
+				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
+			 end
 		--	 meta:set_string("infotext", kind.." pot (cooking)")
 			 meta:set_int("baking", baking - 1)
 		      end
