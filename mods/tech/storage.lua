@@ -414,12 +414,7 @@ minetest.register_node("tech:iron_chest", {
 		local pn = placer:get_player_name()
 		local meta = minetest.get_meta(pos)
 		local imeta = itemstack:get_meta()
-		-- copy meta from item to node
-		for _, key in ipairs({'creator','label'}) do
-			if key ~= '' and imeta:contains(key) then
-				meta:set_string(key, imeta:get_string(key))
-			end
-		end
+		minimal.metadata.after_place_node(imeta,meta)
 		meta:set_string("owner", pn)
 		on_construct(pos, 8, 8)
 		minimal.infotext_set(pos, meta)
@@ -438,11 +433,7 @@ minetest.register_node("tech:iron_chest", {
 
 	preserve_metadata = function(pos, oldnode, oldmeta, drops)
 		local imeta=drops[1]:get_meta()
-		for _, key in ipairs({'creator','label'}) do
-			if key ~= '' then
-				imeta:set_string(key, oldmeta[key])
-			end
-		end
+		minimal.metadata.preserve_metadata(imeta,oldmeta)
 	end,
 
 	can_dig = function(pos, player)
