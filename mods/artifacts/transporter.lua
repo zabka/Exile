@@ -69,21 +69,12 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 		glow = 15,
 	})
 
-
 	--swap out power core
-
--- 	-- XXX all this to add infotext here.
--- 	local meta = minetest.get_meta(power)
--- 	local pn = meta:get_string("owner")
--- 	local description = minetest.registered_nodes["artifacts:transporter_power_dep"].description
--- 	-- XXX shouldn't be clobbering existing info text
--- 	meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 	minimal.switch_node(power, {name = "artifacts:transporter_power_dep"})
 	minimal.infotext_set(power) -- set node description and owner
 	set_charging(power, 5, 20)
 	--go to target
 	player:set_pos(target_pos)
-
 
 	--effects at target
 	minetest.sound_play( {name="artifacts_transport", gain=1}, {pos=target_pos, max_hear_distance=100})
@@ -143,17 +134,9 @@ local function teleport_effects(target_pos, pos, player, player_name, regulator,
 
 end
 
-
-
-
-
-
 --ensure destination is usable
 local function check_teleport_dest(dest, pos, range, random)
-
-
 	local dest_ok  = true
-
 	--check if in range
 	local dist = vector.distance(pos, dest)
 
@@ -169,7 +152,6 @@ local function check_teleport_dest(dest, pos, range, random)
 			return dest_ok
 		end
 	end
-
 
 	-- check the destination node for pad, and the two nodes
 	-- above for "walkthrough"
@@ -211,9 +193,6 @@ local function check_teleport_dest(dest, pos, range, random)
 
 end
 
-
-
-
 --get a random teleport destination
 local function find_random_dest(pos)
 	local target_pos = false
@@ -232,9 +211,6 @@ local function find_random_dest(pos)
 
 	return target_pos
 end
-
-
-
 
 --Main teleport function
 local function do_teleport(pos, target_pos, random, player, range, regulator, power)
@@ -257,7 +233,6 @@ local function do_teleport(pos, target_pos, random, player, range, regulator, po
 		end
 	end
 
-
 	--check for usability
 	local dest_ok = check_teleport_dest(target_pos, pos, range, random)
 
@@ -268,25 +243,11 @@ local function do_teleport(pos, target_pos, random, player, range, regulator, po
 		meta_tran:set_string("target_pos", "")
 		local tran_name = meta_tran:get_string("tran_name")
 		minimal.infotext_delete_key(meta_tran,"Destination")
---XXX This is wrong, Doesn't need to set a location, needs to remove a destination
---		minimal.set_infotext(pos,"Location: "..trans_name,meta,true)
--- 		if tran_name ~= "" then
--- 			meta_tran:set_string("infotext", "Location: "..tran_name)
--- 		else
--- 			meta_tran:set_string("infotext", "")
--- 		end
 		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
-
-
 	else
-
 		teleport_effects(target_pos, pos, player, player_name, regulator, power, random)
-
 	end
 end
-
-
-
 
 --finds where it will transport to, then emerges this area
 --after a time delay to allow for emerge the usual checks can be preformed
@@ -300,7 +261,6 @@ local function get_transporter_target(pos, stabilizer)
 	if target == "" then
 		--will go to random at source after area is emerged
 		return pos, "random"
-
 	elseif target ~= "" then
 		target = minetest.string_to_pos(target)
 
@@ -311,13 +271,9 @@ local function get_transporter_target(pos, stabilizer)
 		else
 			return target, "locked"
 		end
-
 	end
 
 end
-
-
-
 
 --get the status of the transporter set up
 local function assess_transporter(pos)
@@ -347,11 +303,8 @@ local function assess_transporter(pos)
 		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
 	end
 
-
 	return power, range, stabilizer, regulator
 end
-
-
 
 local function transporter_power_rightclick(pos, node, player, itemstack, pointed_thing)
 	local iName = itemstack:get_name()
@@ -373,12 +326,6 @@ local function transporter_power_rightclick(pos, node, player, itemstack, pointe
 
 	local pInv = player:get_inventory()
 	local new = ItemStack(swap_b)
-
--- 	local meta = minetest.get_meta(pos)
--- 	local pn = meta:get_string('owner')
--- 	local description = itemstack:get_definition().description
--- 	-- XXX shouldn't be clobbering existing info text
--- 	meta:set_string("infotext", description .. "\n" .. S("Owned by @1", pn))
 
 	itemstack:take_item()
 	minimal.switch_node(pos, {name=swap_a})
@@ -413,22 +360,10 @@ local function transporter_rightclick(pos, node, player, itemstack, pointed_thin
 
 		--create charging pad and copy over meta data
 		local meta_tran = minetest.get_meta(pos)
---		local target_name = meta_tran:get_string("target_name")
---		local target_pos = meta_tran:get_string("target_pos")
---		local tran_name = meta_tran:get_string("tran_name")
---		local infotext = meta_tran:get_string("infotext")
 		minimal.switch_node(pos, {name="artifacts:transporter_pad_charging"})
---		minetest.set_node(pos, {name = "artifacts:transporter_pad_charging"})
 		minetest.sound_play("artifacts_transport_charge", {pos = pos, gain = 2, max_hear_distance = 20})
-
---		meta_tran:set_string("target_name", target_name)
---		meta_tran:set_string("target_pos", target_pos)
---		meta_tran:set_string("tran_name", tran_name)
---		meta_tran:set_string("infotext", infotext)
 		meta_tran:set_string("tmp_dest", dest)
 		meta_tran:set_string("tmp_random", random)
-
-
 	else
 		minetest.sound_play("artifacts_transport_error", {pos = pos, gain = 1, max_hear_distance = 6})
 	end
@@ -756,10 +691,6 @@ local function charge_power(pos, selfname, name, length)
 
 	if charging <= 0 then
 		--finished
---		local pn = meta:get_string("owner")
---		local description = minetest.registered_nodes[name].description
---		-- XXX shouldn't be clobbering existing info text
---		meta:set_string("infotext", description .. "\n" .. "Owned by " .. pn)
 		minimal.switch_node(pos, {name=name})
 		minimal.infotext_set(pos,nil,meta) -- Set Description and Owner
 		meta:set_float("temp", 14)
@@ -832,16 +763,7 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 		minetest.get_node_timer(pos):start(20)
 	end,
 	on_timer = function(pos, elapsed)
---		local meta_tran = minetest.get_meta(pos)
---		local target_name = meta_tran:get_string("target_name")
---		local target_pos = meta_tran:get_string("target_pos")
---		local tran_name = meta_tran:get_string("tran_name")
---		local infotext = meta_tran:get_string("infotext")
---		local tmp_dest = meta_tran:get_string("tmp_dest")
---		local tmp_random = meta_tran:get_string("tmp_random")
-
 		minimal.switch_node(pos, {name = "artifacts:transporter_pad_active"})
---		minetest.set_node(pos, {name = 'artifacts:transporter_pad_active'})
 		minetest.sound_play("artifacts_transport_charged", {pos = pos, gain = 2, max_hear_distance = 20})
 		minetest.add_particlespawner({
 			amount = 15,
@@ -859,14 +781,6 @@ minetest.register_node('artifacts:transporter_pad_charging', {
 			texture = "artifacts_sparks.png",
 			glow = 15,
 		})
-
---		meta_tran:set_string("target_name", target_name)
---		meta_tran:set_string("target_pos", target_pos)
---		meta_tran:set_string("tran_name", tran_name)
---		meta_tran:set_string("infotext", infotext)
---		meta_tran:set_string("tmp_dest", tmp_dest)
---		meta_tran:set_string("tmp_random", tmp_random)
-
 	end,
 })
 
@@ -900,22 +814,8 @@ minetest.register_node('artifacts:transporter_pad_active', {
 	end,
 	on_timer = function(pos, elapsed)
 		local meta_tran = minetest.get_meta(pos)
---		local target_name = meta_tran:get_string("target_name")
---		local target_pos = meta_tran:get_string("target_pos")
---		local tran_name = meta_tran:get_string("tran_name")
---		local infotext = meta_tran:get_string("infotext")
-
---		minetest.set_node(pos, {name = 'artifacts:transporter_pad'})
-
 		minimal.switch_node(pos, {name = "artifacts:transporter_pad"})
 		minetest.sound_play("artifacts_transport_fail", {pos = pos, gain = 1, max_hear_distance = 6})
-
---		meta_tran:set_string("target_name", target_name)
---		meta_tran:set_string("target_pos", target_pos)
---		meta_tran:set_string("tran_name", tran_name)
---		meta_tran:set_string("infotext", infotext)
-		meta_tran:set_string("tmp_dest", "")
-		meta_tran:set_string("tmp_random", "")
 	end,
 })
 
@@ -953,9 +853,6 @@ minetest.register_node('artifacts:transporter_power', {
 	after_place_node = minimal.protection_after_place_node,
 	on_rightclick = transporter_power_rightclick,
 })
-
-
-
 
 
 minetest.register_node('artifacts:transporter_power_dep', {
@@ -1075,8 +972,6 @@ minetest.register_node('artifacts:transporter_regulator', {
 	sounds = nodes_nature.node_sound_glass_defaults(),
 	after_place_node = minimal.protection_after_place_node,
 })
-
-
 
 minetest.register_tool('artifacts:transporter_key', {
     description = 'Transporter Key',
