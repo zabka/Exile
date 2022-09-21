@@ -13,6 +13,7 @@ local function get_storage_formspec(pos, w, h, meta)
 	local creator = meta:get_string('creator')
 	local label = meta:get_string('label')
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
+	local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
 
 	local formspec = {
 		--"size[8,7]",
@@ -26,7 +27,7 @@ local function get_storage_formspec(pos, w, h, meta)
 		   ";0.8,0.8;creative_trash_icon.png]",
 		"field[1.5,"..label_offset..";4,1;label;Label:;"..label.."]",
 		"field_close_on_enter[label;false]",
-		"label[5.9,"..trash_offset..";Crafted by:]",
+		"label["..craftedby_offset_x..","..trash_offset..";Crafted by:]",
 		"label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]",
 	}
 	return table.concat(formspec, "")
