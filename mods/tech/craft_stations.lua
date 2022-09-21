@@ -336,15 +336,7 @@ minetest.register_node("tech:chopping_block", {
 	groups        = {dig_immediate = 3, falling_node = 1, temp_pass = 1},
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("chopping_block", 2, { x = 8, y = 3 }),
-	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		local meta = minetest.get_meta(pos)
-		local imeta = itemstack:get_meta()
-		minimal.metadata.after_place_node(imeta,meta)
-	end,
-	preserve_metadata = function(pos, oldnode, oldmeta, drops)
-		local imeta=drops[1]:get_meta()
-		minimal.metadata.preserve_metadata(imeta,oldmeta)
-	end,
+	after_place_node = minimal.protection_after_place_node,
 	})
 
 ------------------------------
