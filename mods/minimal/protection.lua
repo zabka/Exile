@@ -12,6 +12,7 @@ function minimal.protection_nail_use( itemstack, user, pointed_thing )
 	local owner = user:get_player_name()
 	if not pt_meta:contains('owner') then
 		pt_meta:set_string("owner", owner)
+		pt_meta:set_string('nailed', owner)
 		itemstack:take_item()
 		minimal.infotext_merge(pt_pos, nil, pt_meta)
 	end
@@ -26,10 +27,27 @@ function minimal.protection_after_place_node( pos, placer, itemstack, pointed_th
 	local pn = placer:get_player_name()
 	local meta = minetest.get_meta(pos)
 	meta:set_string("owner", pn)
+	meta:set_string('nailed', pn)
 	minimal.infotext_merge(pos,nil,meta)
 	return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 end
 
+minetest.register_on_dignode(function(pos,oldnode,digger)
+	local meta = minetest.get_meta(pos)
 
+print (dump(oldnode))
+	if meta:contains('nailed') then
+		--give digger back the nails
+		inv = digger:get_meta():get_inventory()
+		if inv:room_for_item("main", 'tech::nails') then
+			inv:add_item(inv, 'tech::nails')
+		else
+			minetest.chat_send_player(digger, "No room in inventory!")
+			minetest.add_item(pos, 'tech::nails')
+		end
+	return true
+	end
+
+end)
 
 
