@@ -22,31 +22,26 @@ end
 
 -- Set owner for protected items.
 function minimal.protection_after_place_node( pos, placer, itemstack, pointed_thing )
-	local iDef=itemstack:get_definition()
-	local iName=itemstack:get_name()
 	local pn = placer:get_player_name()
 	local meta = minetest.get_meta(pos)
 	meta:set_string("owner", pn)
-	meta:set_string('nailed', pn)
 	minimal.infotext_merge(pos,nil,meta)
 	return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 end
 
-minetest.register_on_dignode(function(pos,oldnode,digger)
+function minimal.protection_on_dig(pos,oldnode,digger)
 	local meta = minetest.get_meta(pos)
-
-print (dump(oldnode))
 	if meta:contains('nailed') then
 		--give digger back the nails
-		inv = digger:get_meta():get_inventory()
-		if inv:room_for_item("main", 'tech::nails') then
-			inv:add_item(inv, 'tech::nails')
+		inv = digger:get_inventory()
+		if inv:room_for_item("main", 'tech:nails') then
+			inv:add_item("main",'tech:nails')
 		else
 			minetest.chat_send_player(digger, "No room in inventory!")
-			minetest.add_item(pos, 'tech::nails')
+			minetest.add_item(pos, 'tech:nails')
 		end
-	return true
+		meta:set_string('nailed', "")
 	end
+end
 
-end)
 
