@@ -14,7 +14,6 @@ function minimal.metadata.after_place_node(imeta,meta)
 	end
 end
 
-
 -- Copies node metadata to items metadata.  
 function minimal.metadata.preserve_metadata(imeta,oldmeta)
 		for _, key in ipairs(copy_list) do
