@@ -33,7 +33,7 @@ function minimal.protection_on_dig(pos,oldnode,digger)
 	local meta = minetest.get_meta(pos)
 	if meta:contains('nailed') then
 		local owner = meta:get_string('owner')
-		if owner == digger then
+		if owner == digger:get_player_name() then
 			--give digger back the nails
 			inv = digger:get_inventory()
 			if inv:room_for_item("main", 'tech:nails') then
