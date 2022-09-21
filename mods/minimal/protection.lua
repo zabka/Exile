@@ -32,15 +32,18 @@ end
 function minimal.protection_on_dig(pos,oldnode,digger)
 	local meta = minetest.get_meta(pos)
 	if meta:contains('nailed') then
-		--give digger back the nails
-		inv = digger:get_inventory()
-		if inv:room_for_item("main", 'tech:nails') then
-			inv:add_item("main",'tech:nails')
-		else
-			minetest.chat_send_player(digger, "No room in inventory!")
-			minetest.add_item(pos, 'tech:nails')
+		local owner = meta:get_string('owner')
+		if owner = digger then
+			--give digger back the nails
+			inv = digger:get_inventory()
+			if inv:room_for_item("main", 'tech:nails') then
+				inv:add_item("main",'tech:nails')
+			else
+				minetest.chat_send_player(digger, "No room in inventory!")
+				minetest.add_item(pos, 'tech:nails')
+			end
+			meta:set_string('nailed', "")
 		end
-		meta:set_string('nailed', "")
 	end
 end
 
