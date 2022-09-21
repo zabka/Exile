@@ -283,7 +283,6 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	local itemstack=ItemStack(recipe.output)
 	local imeta=itemstack:get_meta()
 	imeta:set_string('creator', name)
-print(name)
 	-- Add output
 	if inv:room_for_item("main", itemstack) then
 	   inv:add_item(outlistname, itemstack)
