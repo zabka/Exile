@@ -158,7 +158,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
 --	   "Contents: "..contents,
 --	   "Note:",   -- Clear note about adding food
 --   }, meta)
-   minimal.infotext_set(pos, meta,"Contents: "..contents)
+   minimal.infotext_merge(pos,"Contents: "..contents,meta)
 
    local length = meta:get_int("baking")
    if length <= (cook_time - 4) then

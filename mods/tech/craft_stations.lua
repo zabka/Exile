@@ -336,7 +336,15 @@ minetest.register_node("tech:chopping_block", {
 	groups        = {dig_immediate = 3, falling_node = 1, temp_pass = 1},
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("chopping_block", 2, { x = 8, y = 3 }),
-	after_place_node = minimal.protection_after_place_node,
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		local meta = minetest.get_meta(pos)
+		local imeta = itemstack:get_meta()
+		minimal.metadata.after_place_node(imeta,meta)
+	end,
+	preserve_metadata = function(pos, oldnode, oldmeta, drops)
+		local imeta=drops[1]:get_meta()
+		minimal.metadata.preserve_metadata(imeta,oldmeta)
+	end,
 	})
 
 ------------------------------
@@ -365,6 +373,7 @@ minetest.register_node("tech:mortar_pestle_basalt",{
 	sounds        = nodes_nature.node_sound_stone_defaults(),
 	on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
 	})
+
 minetest.register_node("tech:mortar_pestle_granite",{
 	description   = S("Granite Mortar and Pestle"),
 	drawtype      = "nodebox",
@@ -388,6 +397,7 @@ minetest.register_node("tech:mortar_pestle_granite",{
 	sounds        = nodes_nature.node_sound_stone_defaults(),
 	on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
 	})
+
 minetest.register_node("tech:mortar_pestle_limestone",{
 	description   = S("Limestone Mortar and Pestle"),
 	drawtype      = "nodebox",
@@ -411,6 +421,7 @@ minetest.register_node("tech:mortar_pestle_limestone",{
 	sounds        = nodes_nature.node_sound_stone_defaults(),
 	on_rightclick = crafting.make_on_rightclick("mortar_and_pestle", 2, { x = 8, y = 3 }),
 	})
+
 -------------------
 --metal working, and things dependant on it
 minetest.register_node("tech:anvil", { --anvil--metal  working
@@ -433,6 +444,7 @@ minetest.register_node("tech:anvil", { --anvil--metal  working
 	sounds        = nodes_nature.node_sound_stone_defaults(),
 	on_rightclick = crafting.make_on_rightclick("anvil", 2, { x = 8, y = 3 }),
 	})
+
 minetest.register_node("tech:carpentry_bench", { --carpentry_bench--more sophisticated wood working
 	description   = S("Carpentry Bench"),
 	tiles         = {"nodes_nature_maraka_log.png"},
@@ -456,6 +468,7 @@ minetest.register_node("tech:carpentry_bench", { --carpentry_bench--more sophist
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("carpentry_bench", 2, { x = 8, y = 3 }),
 	})
+
 minetest.register_node("tech:masonry_bench", { --masonry_bench--more sophisticated stone crafts
 	description   = S("Masonry Bench"),
 	tiles         = {"nodes_nature_maraka_log.png"},
@@ -481,6 +494,7 @@ minetest.register_node("tech:masonry_bench", { --masonry_bench--more sophisticat
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("masonry_bench", 2, { x = 8, y = 3 }),
 	})
+
 --brick_makers_bench
 --for fired bricks and associated crafts
 minetest.register_node("tech:brick_makers_bench", {
@@ -514,6 +528,7 @@ minetest.register_node("tech:brick_makers_bench", {
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("brick_makers_bench", 2, { x = 8, y = 3 }),
 	})
+
 --spinning_wheel
 --turn raw fibres into spun fibre
 --including steps here that in reality would require their own equipment
@@ -541,6 +556,7 @@ minetest.register_node("tech:spinning_wheel", {
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("spinning_wheel", 2, { x = 8, y = 3 }),
 	})
+
 --Loom--turn fibre into fabric items
 minetest.register_node("tech:loom", {
 	description   = S("Loom"),
@@ -573,6 +589,7 @@ minetest.register_node("tech:loom", {
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("loom", 2, { x = 8, y = 3 }),
 	})
+
 --Glassworking Furnace
 --Glassblowing and similar
 minetest.register_node("tech:glass_furnace", {
@@ -597,6 +614,7 @@ minetest.register_node("tech:glass_furnace", {
 	sounds        = nodes_nature.node_sound_wood_defaults(),
 	on_rightclick = crafting.make_on_rightclick("glass_furnace", 2, { x = 8, y = 3 }),
 	})
+
 ---------------------------------------
 --Recipes
 ---- Hand crafts (inv) ----
@@ -824,6 +842,7 @@ if legacy_stations == true then
         sounds        = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = crafting.make_on_rightclick("chopping_block", 2, { x = 8, y = 3 }),
    })
+
    --hammering_block
    --crude hammering crushing jobs,
    minetest.register_node("tech:hammering_block", {

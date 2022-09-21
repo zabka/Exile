@@ -6,9 +6,14 @@
 local S = tech.S
 
 ---------------------------------------------------
-local function get_storage_formspec(pos, w, h)
-	local main_offset = 0.25 + h
+local function get_storage_formspec(pos, w, h, meta)
+	local main_offset = 0.25 + h 
 	local trash_offset = 0.45 + h + 2
+	local label_offset = trash_offset + .35
+	local creator = meta:get_string('creator')
+	local label = meta:get_string('label')
+	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
+	local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
 
 	local formspec = {
 		--"size[8,7]",
@@ -18,8 +23,12 @@ local function get_storage_formspec(pos, w, h)
 		"listring[current_name;main]",
 		"listring[current_player;main]",
 		"list[detached:creative_trash;main;0,"..trash_offset..";1,1;]",
-		"image[0.05,"..(trash_offset+.05)..
-		   ";0.8,0.8;creative_trash_icon.png]"
+		"image[0.05,"..(trash_offset+.10)..
+		   ";0.8,0.8;creative_trash_icon.png]",
+		"field[1.5,"..label_offset..";4,1;label;Label:;"..label.."]",
+		"field_close_on_enter[label;false]",
+		"label["..craftedby_offset_x..","..trash_offset..";Crafted by:]",
+		"label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]",
 	}
 	return table.concat(formspec, "")
 end
@@ -39,7 +48,7 @@ end
 local on_construct = function(pos, width, height)
 	local meta = minetest.get_meta(pos)
 
-	local form = get_storage_formspec(pos, width, height)
+	local form = get_storage_formspec(pos, width, height, meta)
 	meta:set_string("formspec", form)
 
 	local inv = meta:get_inventory()
@@ -405,13 +414,28 @@ minetest.register_node("tech:iron_chest", {
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		local pn = placer:get_player_name()
 		local meta = minetest.get_meta(pos)
+		local imeta = itemstack:get_meta()
+		minimal.metadata.after_place_node(imeta,meta)
 		meta:set_string("owner", pn)
-		minimal.infotext_set(pos,meta)
+		on_construct(pos, 8, 8)
+		minimal.infotext_set(pos, meta)
 		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
 
+	on_receive_fields = function(pos, formname, fields, sender)
+		local label = fields.label
+		if label and label ~= '' then
+			local meta = minetest.get_meta(pos)
+			meta:set_string('label', label)
+			minimal.infotext_merge(pos,'Label: '..label, meta)
+			on_construct(pos, 8, 8)
+		end
+	end,
 
-
+	preserve_metadata = function(pos, oldnode, oldmeta, drops)
+		local imeta=drops[1]:get_meta()
+		minimal.metadata.preserve_metadata(imeta,oldmeta)
+	end,
 
 	can_dig = function(pos, player)
 		local inv = minetest.get_meta(pos):get_inventory()
