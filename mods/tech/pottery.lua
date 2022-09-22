@@ -40,7 +40,7 @@ function water_pot(pos, pot_name, elapsed)
 	if light == 15 then
 	   if climate.get_rain(pos, light) or
 	      climate.time_since_rain(elapsed) > 0 then
-	          minetest.set_node(pos, {name = pot_name.."_freshwater"})
+	          minetest.swap_node(pos, {name = pot_name.."_freshwater"})
 		  return
 	   end
 	else
@@ -73,7 +73,7 @@ function water_pot(pos, pot_name, elapsed)
 			name_a == "nodes_nature:snow_block" or
 			name_a == "nodes_nature:freshwater_source" ) then
 			if climate.can_thaw(posa) then
-				minetest.set_node(pos, {name = pot_name.."_freshwater"})
+				minetest.swap_node(pos, {name = pot_name.."_freshwater"})
 				minetest.remove_node(posa)
 				return
 			end
@@ -601,7 +601,7 @@ minetest.override_item("tech:clay_water_pot_freshwater",{
 			--e.g. rain vs mud puddle
 
 			meta:set_int("thirst", thirst)
-			minetest.set_node(pos, {name = "tech:clay_water_pot"})
+			minetest.swap_node(pos, {name = "tech:clay_water_pot"})
 			minetest.sound_play("nodes_nature_slurp",	{pos = pos, max_hear_distance = 3, gain = 0.25})
 		end
 	end
