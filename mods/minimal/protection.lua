@@ -48,4 +48,3 @@ function minimal.protection_on_dig(pos,oldnode,digger)
 end
 
 
-
