@@ -63,8 +63,8 @@ minetest.register_on_mods_loaded(function()
 	-- Add a preserve_metadata callback to all nodes
 	for oName, override in pairs( minetest.registered_nodes ) do
 		local old_preserve_metadata = override.preserve_metadata
-		minetest.override_item(oName,
-			{  preserve_metadata = function(pos, oldNode, oldmeta, drops)
+		minetest.override_item(oName, {
+			preserve_metadata = function(pos, oldNode, oldmeta, drops)
 				local imeta=drops[1]:get_meta()
 				minimal.metadata.preserve_metadata(imeta,oldmeta)
 				if type(old_preserve_metadata) == 'function' then
@@ -85,3 +85,6 @@ minetest.register_on_player_hpchange(function(player, hp_change, reason)
 	end
 	return hp_change
 end, true)
+
+
+
