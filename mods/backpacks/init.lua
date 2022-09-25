@@ -7,11 +7,12 @@ local function get_formspec(pos, w, h)
 	local formspec_size_h = 3.85 + h
 	local main_offset = 1.85 + h
 	local label_offset = 0.85 + h
-	local meta=minetest.get_meta(pos)
-	local creator = meta:get_string('creator')
-	local label = meta:get_string('label')
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
 	local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
+
+	local meta = minetest.get_meta(pos)
+	local creator = meta:get_string('creator')
+	local label = meta:get_string('label')
 
 	local formspec = {
 		"size[8,"..formspec_size_h.."]",
@@ -39,14 +40,12 @@ end
 local on_construct = function(pos, width, height)
 	local meta = minetest.get_meta(pos)
 print("-----backpack:on_construct---")
-	
 	local label = meta:get_string('label')
 	minimal.infotext_merge(pos,'Label: '..label,meta)
 	local form = get_formspec(pos, width, height)
 	meta:set_string("formspec", form)
 	local inv = meta:get_inventory()
 	inv:set_size("main", width*height)
-
 print(dump(meta:to_table()))
 end
 
@@ -102,7 +101,6 @@ print('---------preserve_metadata----------')
 	imeta:set_int('palette_index', color)
 	-- Set Description
 	imeta:set_string('description', get_description(oldnode,meta))
-	
 	-- Set Formspec
 	imeta:set_string('formspec', get_formspec(pos,width,height))
 end
