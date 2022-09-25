@@ -257,6 +257,7 @@ function crafting.register_on_craft(func)
 end
 
 function crafting.perform_craft(name, inv, listname, outlistname, recipe)
+print ('---------crafting.perform_craft-----------')
 	local items = crafting.find_required_items(inv, listname, recipe)
 	if not items then
 		return false
@@ -291,6 +292,7 @@ function crafting.perform_craft(name, inv, listname, outlistname, recipe)
 	   minetest.chat_send_player(name, "No room in inventory!")
 	   minetest.add_item(pos, itemstack)
 	end
+print(dump(imeta:to_table()))
 	return true
 end
 

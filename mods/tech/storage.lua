@@ -7,10 +7,11 @@ local S = tech.S
 
 ---------------------------------------------------
 local function get_storage_formspec(pos, w, h, meta)
+print('-------------tech:storage:get_storage_formspec-----------------')
+	local formspec_size_h = 3.85 + h
 	local main_offset = 0.25 + h 
 	local trash_offset = 0.45 + h + 2
 	local label_offset = trash_offset + .35
-print(dump(meta:to_table()))
 	local creator = meta:get_string('creator')
 	local label = meta:get_string('label')
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
@@ -18,7 +19,7 @@ print(dump(meta:to_table()))
 
 	local formspec = {
 		--"size[8,7]",
-		"size[8,11]",
+		"size[8,"..formspec_size_h.."]",
 		"list[current_name;main;0,0;"..w..","..h.."]",
 		"list[current_player;main;0,"..main_offset..";8,2]",
 		"listring[current_name;main]",
@@ -47,6 +48,7 @@ end
 
 
 local on_construct = function(pos, width, height)
+print("----------------Storage:on_construct-------------------")
 	local meta = minetest.get_meta(pos)
 
 	local form = get_storage_formspec(pos, width, height, meta)
@@ -54,6 +56,7 @@ local on_construct = function(pos, width, height)
 
 	local inv = meta:get_inventory()
 	inv:set_size("main", width*height)
+print(dump(meta:to_table()))
 end
 
 
@@ -91,7 +94,7 @@ minetest.register_node("tech:clay_storage_pot", {
 		local meta = minetest.get_meta(pos)
 		local imeta = itemstack:get_meta()
 		minimal.metadata.after_place_node(imeta,meta)
-		on_construct(pos, 8, 8)
+--		on_construct(pos, 8, 4)
 		minimal.infotext_set(pos, meta)
 --		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
@@ -175,10 +178,11 @@ minetest.register_node("tech:primitive_wooden_chest", {
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
+print ('----------------WoodChest: after_place_node -----------------')
 		local meta = minetest.get_meta(pos)
 		local imeta = itemstack:get_meta()
 		minimal.metadata.after_place_node(imeta,meta)
-		on_construct(pos, 8, 8)
+		on_construct(pos, 8, 4)
 		minimal.infotext_set(pos, meta)
 --		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
@@ -189,11 +193,12 @@ minetest.register_node("tech:primitive_wooden_chest", {
 			local meta = minetest.get_meta(pos)
 			meta:set_string('label', label)
 			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 8)
+			on_construct(pos, 8, 4)
 		end
 	end,
 
 	preserve_metadata = function(pos, oldnode, oldmeta, drops)
+print ('----------------WoodChest: preserve_metadata -----------------')
 		local imeta=drops[1]:get_meta()
 		minimal.metadata.preserve_metadata(imeta,oldmeta)
 	end,
@@ -262,7 +267,7 @@ minetest.register_node("tech:wicker_storage_basket", {
 		local meta = minetest.get_meta(pos)
 		local imeta = itemstack:get_meta()
 		minimal.metadata.after_place_node(imeta,meta)
-		on_construct(pos, 8, 8)
+		on_construct(pos, 8, 4)
 		minimal.infotext_set(pos, meta)
 		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
@@ -273,7 +278,7 @@ minetest.register_node("tech:wicker_storage_basket", {
 			local meta = minetest.get_meta(pos)
 			meta:set_string('label', label)
 			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 8)
+			on_construct(pos, 8, 4)
 		end
 	end,
 
@@ -346,7 +351,7 @@ minetest.register_node("tech:woven_storage_basket", {
 		local meta = minetest.get_meta(pos)
 		local imeta = itemstack:get_meta()
 		minimal.metadata.after_place_node(imeta,meta)
-		on_construct(pos, 8, 8)
+		on_construct(pos, 8, 4)
 		minimal.infotext_set(pos, meta)
 		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
@@ -357,7 +362,7 @@ minetest.register_node("tech:woven_storage_basket", {
 			local meta = minetest.get_meta(pos)
 			meta:set_string('label', label)
 			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 8)
+			on_construct(pos, 8, 4)
 		end
 	end,
 
