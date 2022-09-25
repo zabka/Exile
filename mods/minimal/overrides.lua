@@ -47,8 +47,13 @@ end
 
 -- Transfer item metadata to the node.
 minetest.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
+print('-------------register_on_place-----------------')
 	local imeta = itemstack:get_meta()
 	local meta = minetest.get_meta(pos)
+print(dump(imeta:to_table()))
+print(dump(meta:to_table()))
+
+
 --	minimal.protection_after_place_node(pos,placer,itemstack,pointed_thing)
 	minimal.metadata.after_place_node(imeta,meta)
 end)
