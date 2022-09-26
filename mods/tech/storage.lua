@@ -12,13 +12,13 @@ print('-------------tech:storage:get_storage_formspec-----------------')
 	local main_offset = 0.25 + h 
 	local trash_offset = 0.45 + h + 2
 	local label_offset = trash_offset + .35
-	local creator = meta:get_string('creator')
-	local label = meta:get_string('label')
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
 	local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
 
+	local creator = meta:get_string('creator')
+	local label = meta:get_string('label')
+
 	local formspec = {
-		--"size[8,7]",
 		"size[8,"..formspec_size_h.."]",
 		"list[current_name;main;0,0;"..w..","..h.."]",
 		"list[current_player;main;0,"..main_offset..";8,2]",
@@ -105,7 +105,7 @@ minetest.register_node("tech:clay_storage_pot", {
 			local meta = minetest.get_meta(pos)
 			meta:set_string('label', label)
 			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 8)
+			on_construct(pos, 8, 4)
 		end
 	end,
 
