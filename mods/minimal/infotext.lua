@@ -28,7 +28,6 @@ infotext.fixed_order = {
 	"Status",		-- Cooking Pot status
 	"Note",			-- Note field (added for cooking pot)
 	"Dye Test Bundle",	-- Dye Bundles
-	"Bed",			-- Beds
 }
 
 function table.removekey(table, key)
@@ -259,6 +258,13 @@ function minimal.infotext_delete_key(meta,key)
 	end
 	meta:set_string("infotext",infotext_string)
 --print(infotext_string)
+end
+
+function minimal.infotext_clear(pos,meta)
+	if not meta then
+		meta = minetest.get_meta(pos)
+	end
+	meta:set_string("infotext","")
 end
 
 --XXX More testing needed on this
