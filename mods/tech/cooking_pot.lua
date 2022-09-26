@@ -76,7 +76,6 @@ local function clear_pot(pos)
 --print ('---------------76------------')
    minimal.infotext_set(pos,meta,
      "Status: Unprepared pot\nContents: <EMPTY>\nNote: Add water to pot to make soup")
---   meta:set_string("infotext", "Unprepared pot")
    meta:set_string("formspec", "")
    meta:set_string("type", "")
    meta:set_string("status", "") -- "" = unprepared, "Cooking", "Finished"
@@ -96,7 +95,6 @@ local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	 minimal.infotext_set(pos,meta,
 		"Status: Soup Pot\nContents: Water\n"
 		.."Note: Add food to the pot to make soup")
---	 meta:set_string("infotext", "Soup pot")
 	 meta:set_string("formspec", pot_formspec)
 	 meta:set_int("baking", cook_time)
 	 minetest.get_node_timer(pos):start(6)
@@ -149,16 +147,15 @@ local function pot_receive_fields(pos, formname, fields, sender)
 	 end
       end
    end
+   contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
 --print ("CONTENTS: "..contents)
---   contents=contents:sub(1, #contents - 2) -- take last ', ' from contents
 --   meta:set_string('contents',contents)
 
 --print ('---------------156------------')
---   minimal.infotext_merge(pos, {
---	   "Contents: "..contents,
---	   "Note:",   -- Clear note about adding food
---   }, meta)
-   minimal.infotext_merge(pos,"Contents: "..contents,meta)
+   minimal.infotext_merge(pos, {
+	   "Contents: "..contents,
+	   "Note:",   -- Clear note about adding food
+   }, meta)
 
    local length = meta:get_int("baking")
    if length <= (cook_time - 4) then
@@ -217,7 +214,6 @@ local function pot_cook(pos, elapsed)
 				"Status: "..kind.." pot (finished)"
 			}, meta)
 			 meta:set_string("status", "finished")
-		--	 meta:set_string("infotext", kind.." pot (finished)")
 			 return
 		      elseif temp < cook_temp[kind] then
 			      if status ~= 'cooling' then
@@ -235,7 +231,6 @@ local function pot_cook(pos, elapsed)
 --print ('---------------231------------')
 				 minimal.infotext_merge(pos, "Status: "..kind.." pot (cooking)", meta)
 			 end
-		--	 meta:set_string("infotext", kind.." pot (cooking)")
 			 meta:set_int("baking", baking - 1)
 		      end
 		end -- Soup
