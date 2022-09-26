@@ -8,15 +8,15 @@ local S = tech.S
 ---------------------------------------------------
 local function get_storage_formspec(pos, w, h, meta)
 print('-------------tech:storage:get_storage_formspec-----------------')
+	local creator = meta:get_string('creator')
+	local label = meta:get_string('label')
+	minimal.infotext_merge(pos, 'Label: '..label, meta)
 	local formspec_size_h = 3.85 + h
 	local main_offset = 0.25 + h 
 	local trash_offset = 0.45 + h + 2
 	local label_offset = trash_offset + .35
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
 	local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
-
-	local creator = meta:get_string('creator')
-	local label = meta:get_string('label')
 
 	local formspec = {
 		"size[8,"..formspec_size_h.."]",
@@ -56,9 +56,19 @@ print("----------------Storage:on_construct-------------------")
 
 	local inv = meta:get_inventory()
 	inv:set_size("main", width*height)
+
 print(dump(meta:to_table()))
 end
 
+local on_receive_fields = function(pos, formname, fields, sender, width, height)
+		local label = fields.label
+		if label and label ~= '' then
+			local meta = minetest.get_meta(pos)
+			meta:set_string('label', label)
+			minimal.infotext_merge(pos,'Label: '..label, meta)
+			on_construct(pos, width, height)
+		end
+end
 
 
 ----------------------------------------------------
@@ -91,29 +101,13 @@ minetest.register_node("tech:clay_storage_pot", {
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		local meta = minetest.get_meta(pos)
-		local imeta = itemstack:get_meta()
-		minimal.metadata.after_place_node(imeta,meta)
---		on_construct(pos, 8, 4)
-		minimal.infotext_set(pos, meta)
---		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
+		--Update formspec and infotext
+		on_construct(pos, 8, 4)
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		local label = fields.label
-		if label and label ~= '' then
-			local meta = minetest.get_meta(pos)
-			meta:set_string('label', label)
-			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 4)
-		end
+		on_receive_field(pos,formname,fields, sender, 8, 4)
 	end,
-
-	preserve_metadata = function(pos, oldnode, oldmeta, drops)
-		local imeta=drops[1]:get_meta()
-		minimal.metadata.preserve_metadata(imeta,oldmeta)
-	end,
-
 
 	can_dig = function(pos, player)
 		local inv = minetest.get_meta(pos):get_inventory()
@@ -178,29 +172,12 @@ minetest.register_node("tech:primitive_wooden_chest", {
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-print ('----------------WoodChest: after_place_node -----------------')
-		local meta = minetest.get_meta(pos)
-		local imeta = itemstack:get_meta()
-		minimal.metadata.after_place_node(imeta,meta)
+		--Update formspec and infotext
 		on_construct(pos, 8, 4)
-		minimal.infotext_set(pos, meta)
---		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		local label = fields.label
-		if label and label ~= '' then
-			local meta = minetest.get_meta(pos)
-			meta:set_string('label', label)
-			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 4)
-		end
-	end,
-
-	preserve_metadata = function(pos, oldnode, oldmeta, drops)
-print ('----------------WoodChest: preserve_metadata -----------------')
-		local imeta=drops[1]:get_meta()
-		minimal.metadata.preserve_metadata(imeta,oldmeta)
+		on_receive_fields(pos, formname, fields, sender, 8, 4)
 	end,
 
 	can_dig = function(pos, player)
@@ -264,27 +241,12 @@ minetest.register_node("tech:wicker_storage_basket", {
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		local meta = minetest.get_meta(pos)
-		local imeta = itemstack:get_meta()
-		minimal.metadata.after_place_node(imeta,meta)
+		--Update formspec and infotext
 		on_construct(pos, 8, 4)
-		minimal.infotext_set(pos, meta)
-		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		local label = fields.label
-		if label and label ~= '' then
-			local meta = minetest.get_meta(pos)
-			meta:set_string('label', label)
-			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 4)
-		end
-	end,
-
-	preserve_metadata = function(pos, oldnode, oldmeta, drops)
-		local imeta=drops[1]:get_meta()
-		minimal.metadata.preserve_metadata(imeta,oldmeta)
+		on_receive_fields(pos, formname, fields, sender, 8, 4)
 	end,
 
 	can_dig = function(pos, player)
@@ -348,29 +310,13 @@ minetest.register_node("tech:woven_storage_basket", {
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		local meta = minetest.get_meta(pos)
-		local imeta = itemstack:get_meta()
-		minimal.metadata.after_place_node(imeta,meta)
+		--Update formspec and infotext
 		on_construct(pos, 8, 4)
-		minimal.infotext_set(pos, meta)
-		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		local label = fields.label
-		if label and label ~= '' then
-			local meta = minetest.get_meta(pos)
-			meta:set_string('label', label)
-			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 4)
-		end
+		on_receive_fields(pos, formname, fields, sender, 8, 4)
 	end,
-
-	preserve_metadata = function(pos, oldnode, oldmeta, drops)
-		local imeta=drops[1]:get_meta()
-		minimal.metadata.preserve_metadata(imeta,oldmeta)
-	end,
-
 
 	can_dig = function(pos, player)
 		local inv = minetest.get_meta(pos):get_inventory()
@@ -444,27 +390,12 @@ minetest.register_node("tech:wooden_chest", {
 	end,
 
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		local meta = minetest.get_meta(pos)
-		local imeta = itemstack:get_meta()
-		minimal.metadata.after_place_node(imeta,meta)
+		--Update formspec and infotext
 		on_construct(pos, 8, 8)
-		minimal.infotext_set(pos, meta)
-		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		local label = fields.label
-		if label and label ~= '' then
-			local meta = minetest.get_meta(pos)
-			meta:set_string('label', label)
-			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 8)
-		end
-	end,
-
-	preserve_metadata = function(pos, oldnode, oldmeta, drops)
-		local imeta=drops[1]:get_meta()
-		minimal.metadata.preserve_metadata(imeta,oldmeta)
+		on_receive_fields(pos, formname, fields, sender, 8, 8)
 	end,
 
 	can_dig = function(pos, player)
@@ -538,31 +469,13 @@ minetest.register_node("tech:iron_chest", {
 		on_construct(pos, 8, 8)
 	end,
 
-
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		local pn = placer:get_player_name()
-		local meta = minetest.get_meta(pos)
-		local imeta = itemstack:get_meta()
-		minimal.metadata.after_place_node(imeta,meta)
-		meta:set_string("owner", pn)
+		--Update formspec and infotext
 		on_construct(pos, 8, 8)
-		minimal.infotext_set(pos, meta)
-		return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		local label = fields.label
-		if label and label ~= '' then
-			local meta = minetest.get_meta(pos)
-			meta:set_string('label', label)
-			minimal.infotext_merge(pos,'Label: '..label, meta)
-			on_construct(pos, 8, 8)
-		end
-	end,
-
-	preserve_metadata = function(pos, oldnode, oldmeta, drops)
-		local imeta=drops[1]:get_meta()
-		minimal.metadata.preserve_metadata(imeta,oldmeta)
+		on_receive_fields(pos, formname, fields, sender, 8, 8)
 	end,
 
 	can_dig = function(pos, player)
