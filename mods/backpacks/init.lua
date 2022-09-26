@@ -4,15 +4,16 @@ backpacks = {}
 local S = minetest.get_translator("backpacks")
 
 local function get_formspec(pos, w, h)
+	local meta = minetest.get_meta(pos)
+	local creator = meta:get_string('creator')
+	local label = meta:get_string('label')
+
 	local formspec_size_h = 3.85 + h
 	local main_offset = 1.85 + h
 	local label_offset = 0.85 + h
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
 	local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
 
-	local meta = minetest.get_meta(pos)
-	local creator = meta:get_string('creator')
-	local label = meta:get_string('label')
 
 	local formspec = {
 		"size[8,"..formspec_size_h.."]",
@@ -28,6 +29,7 @@ local function get_formspec(pos, w, h)
 	minimal.infotext_merge(pos,'Label: '..label, meta)
 	return table.concat(formspec, "")
 end
+
 function get_description(node,meta)
 	local desc = minetest.registered_nodes[node.name].description
 	local label = meta:get_string('label')
@@ -54,8 +56,6 @@ print('---------backpacks:after_place_node----------')
 	local node = minetest.get_node(pos)
 	local meta = minetest.get_meta(pos)
 	local imeta = itemstack:get_meta()
-	-- Restore important 
-	minimal.metadata.after_place_node(imeta,meta)
 	-- Load inventory
 	local inv_main=imeta:get_string('inv_main')
 		local inv=meta:get_inventory()
@@ -81,8 +81,6 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops,width,height)
 print('---------preserve_metadata----------')
 	local item = drops[1]
 	local imeta = item:get_meta()
-	-- Preserve importent metadata (creator, label)
-	minimal.metadata.preserve_metadata(imeta,oldmeta)
 	-- Transfer inventory to item
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory()
@@ -113,12 +111,18 @@ local on_dig = function(pos, node, digger, width, height)
 	-- See if it fits in invenotry
 	local new = ItemStack(node)
 	if player_inv:room_for_item("main", new) then
-		local meta = minetest.get_meta(pos)
-		-- Return the nail if nailed down.
-		minimal.protection_on_dig(pos,node,digger)
 		--Call default node_dig() to remove node and make item
 		--Causes preserve_metadata() to be called. 
-		minetest.node_dig(pos, node, digger)
+		return minetest.node_dig(pos, node, digger)
+	end
+	return false
+end
+local on_receive_fields = function (pos, formname, fields, sender, width, height)
+	local label = fields.label
+	if label and label ~= '' then
+		local meta = minetest.get_meta(pos)
+		meta:set_string('label', label)
+		on_construct(pos, width, height)
 	end
 end
 
@@ -181,13 +185,9 @@ function backpacks.register_backpack(name, desc, texture, width, height, groups,
 			preserve_metadata(pos, oldnode, oldmeta, drops, width, height)
 		end,
 		on_receive_fields = function(pos, formname, fields, sender)
-			local label = fields.label
-			if label and label ~= '' then
-				local meta = minetest.get_meta(pos)
-				meta:set_string('label', label)
-				on_construct(pos, width, height)
-			end
+			on_receive_fields(pos, formname, fields, sender, width, height)
 		end,
+
 		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
 			return allow_metadata_inventory_put(pos, listname, index, stack, player)
 		end,
