@@ -14,7 +14,6 @@ local function get_formspec(pos, w, h)
 	local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
 	local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
 
-
 	local formspec = {
 		"size[8,"..formspec_size_h.."]",
 		"list[current_name;main;0,0.3;"..w..","..h.."]",
@@ -40,10 +39,8 @@ function get_description(node,meta)
 end
 
 local on_construct = function(pos, width, height)
-	local meta = minetest.get_meta(pos)
 print("-----backpack:on_construct---")
-	local label = meta:get_string('label')
-	minimal.infotext_merge(pos,'Label: '..label,meta)
+	local meta = minetest.get_meta(pos)
 	local form = get_formspec(pos, width, height)
 	meta:set_string("formspec", form)
 	local inv = meta:get_inventory()
