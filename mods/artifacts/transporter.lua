@@ -503,8 +503,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		meta_tran:set_string("target_name", target_name)
 		meta_tran:set_string("target_pos", target_pos)
 		minimal.infotext_merge(pos_tran,"Destination: "..target_name,meta_tran)
---		local infotext = meta_tran:get_string("infotext")
---		meta_tran:set_string("infotext", infotext.. "\nDestination: "..target_name)
 
 		local player_name = player:get_player_name()
 		minetest.sound_play( 'artifacts_key', { pos = pos_tran, gain = 1, max_hear_distance = 5,})
@@ -627,14 +625,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		--set name and infotext of transporter
 		local meta_tran = minetest.get_meta(minetest.string_to_pos(target))
 		minimal.infotext_merge(target,"Location: "..target_name,meta_tran)
---		local infotext = meta_tran:get_string("infotext")
---		meta_tran:set_string("infotext", infotext.. "\nLocation: "..target_name)
 		meta_tran:set_string("tran_name", target_name)
-
 
 		minetest.chat_send_player(player_name, minetest.colorize("#00ff00", "TRANSPORTER KEY CREATED TO: "..target_name))
 		minetest.sound_play("artifacts_transport_fail", {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
-
 
 		player:set_wielded_item(stack)
 	end
@@ -655,7 +649,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local meta_tran = minetest.get_meta(minetest.string_to_pos(target))
 		local target_name = meta_tran:get_string("tran_name")
 
-
 		meta:set_string("target_name", target_name)
 		meta:set_string("description", "Transporter Key to "..target_name)
 
@@ -663,7 +656,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		minetest.chat_send_player(player_name, minetest.colorize("#00ff00", "TRANSPORTER KEY CREATED TO: "..target_name))
 		minetest.sound_play("artifacts_transport_fail", {pos = player:get_pos(), gain = 1, max_hear_distance = 6})
-
 
 		player:set_wielded_item(stack)
 	end
