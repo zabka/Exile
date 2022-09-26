@@ -158,7 +158,7 @@ minetest.register_node("bones:bones", {
 		local meta = minetest.get_meta(pos)
 		local time = meta:get_int("time") + elapsed
 		if time >= share_bones_time then
-			meta:set_string("infotext", S("@1's old bones", meta:get_string("owner")))
+			minimal.infotext_merge(pos,'Status: '.. S("@1's old bones", meta:get_string("owner")),meta)
 			meta:set_string("owner", "")
 		else
 			meta:set_int("time", time)
