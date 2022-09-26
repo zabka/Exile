@@ -198,6 +198,7 @@ function infotext.append_fixed_order(output_lines,old_lines,new_lines)
 		end
 	end
 end
+
 -- Main funtion called from other modules.
 -- Takes the pos of the node being modifide, in string or pos object form and
 -- a single line of text or a list of text lines to add/replace.
@@ -234,6 +235,18 @@ function minimal.infotext_merge(pos, add_lines, meta)
 --print(out)
 	return out
 end
+
+
+function minimal.infotext_is_empty(pos,meta)
+	if not meta then
+		meta = minetest.get_meta(pos)
+	end
+	if meta:get_string('infotext') ~= "" then
+		return false
+	end
+	return true
+end
+
 
 -- Sets infotext description and owner and infotext as provided
 function minimal.infotext_set(pos,meta,text)
