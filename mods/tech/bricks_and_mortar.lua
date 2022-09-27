@@ -65,7 +65,7 @@ local function roast(pos, selfname, name, length, heat)
 
 	if roast <= 0 then
 		--finished firing
-    minetest.set_node(pos, {name = name})
+    minetest.swap_node(pos, {name = name})
     minetest.check_for_falling(pos)
     return false
   elseif temp < fire_temp then
@@ -125,11 +125,11 @@ minetest.register_node("tech:quicklime", {
       --check water type. Salt would ruin it.
       local water_type = minetest.get_item_group(p_name, "water")
   		if water_type == 1 then
-  			minetest.set_node(pos, {name = "tech:slaked_lime"})
+  			minetest.swap_node(pos, {name = "tech:slaked_lime"})
         minetest.set_node(p_water, {name = "air"})
         minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
   		elseif water_type == 2 then
-  			minetest.set_node(pos, {name = "tech:slaked_lime_ruined"})
+  			minetest.swap_node(pos, {name = "tech:slaked_lime_ruined"})
         minetest.set_node(p_water, {name = "air"})
         minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
   		end
@@ -140,10 +140,10 @@ minetest.register_node("tech:quicklime", {
     if minetest.find_node_near(pos, 1, {"air"}) then
       if random() > 0.99 then
         if climate.get_rain(pos) then
-          minetest.set_node(pos, {name = "tech:slaked_lime"})
+          minetest.swap_node(pos, {name = "tech:slaked_lime"})
           minetest.sound_play("tech_boil",	{pos = pos, max_hear_distance = 8, gain = 1})
         else
-          minetest.set_node(pos, {name = "tech:crushed_lime"})
+          minetest.swap_node(pos, {name = "tech:crushed_lime"})
           return false
         end
       end
@@ -179,7 +179,7 @@ minetest.register_node("tech:slaked_lime", {
 
       --slowly revert to lime by reacting with the air
       if minetest.find_node_near(pos, 1, {"air"}) then
-        minetest.set_node(pos, {name = "tech:crushed_lime"})
+        minetest.swap_node(pos, {name = "tech:crushed_lime"})
         return false
       end
     end
@@ -216,7 +216,7 @@ minetest.register_node("tech:slaked_lime_ruined", {
     --slowly revert to lime by reacting with the air
     if minetest.find_node_near(pos, 1, {"air"}) then
       if random() > 0.9 then
-        minetest.set_node(pos, {name = "tech:crushed_lime"})
+        minetest.swap_node(pos, {name = "tech:crushed_lime"})
         return false
       end
     end
@@ -310,7 +310,7 @@ local function fire_pottery(pos, selfname, name, length)
 
 	--check if wet, falls to bits and thats it for your pot
 	if climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:water"}) then
-		minetest.set_node(pos, {name = 'nodes_nature:clay'})
+		minetest.swap_node(pos, {name = 'nodes_nature:clay'})
 		return false
 	end
 
@@ -323,13 +323,13 @@ local function fire_pottery(pos, selfname, name, length)
 
 	if firing <= 0 then
 		--finished firing
-		minetest.set_node(pos, {name = name})
+		minetest.swap_node(pos, {name = name})
 		return false
 	elseif temp < fire_temp then
 		if firing < length and temp < fire_temp/2 then
 			--firing began but is now interupted
 			--causes firing to fail
-			minetest.set_node(pos, {name = "tech:broken_pottery"})
+			minetest.swap_node(pos, {name = "tech:broken_pottery"})
 			return false
 		else
 			--no fire lit yet

@@ -67,7 +67,7 @@ function ncrafting.fire_pottery(pos, selfname, name, length)
 
 	--check if wet, falls to bits and thats it for your pot
 	if climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:water"}) then
-		minetest.set_node(pos, {name = 'nodes_nature:clay'})
+		minetest.swap_node(pos, {name = 'nodes_nature:clay'})
 		return false
 	end
 
@@ -80,13 +80,13 @@ function ncrafting.fire_pottery(pos, selfname, name, length)
 
 	if firing <= 0 then
 		--finished firing
-		minetest.set_node(pos, {name = name})
+		minetest.swap_node(pos, {name = name})
 		return false
 	elseif temp < fire_temp then
 		if firing < length and temp < fire_temp/2 then
 			--firing began but is now interupted
 			--causes firing to fail
-			minetest.set_node(pos, {name = "tech:broken_pottery"})
+			minetest.swap_node(pos, {name = "tech:broken_pottery"})
 			return false
 		else
 			--no fire lit yet
