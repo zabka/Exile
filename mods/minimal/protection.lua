@@ -7,24 +7,25 @@ local __nail_use_count = 3
 
 function minimal.protection_nail_use( itemstack, user, pointed_thing )
 	local owner = user:get_player_name()
-	local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-	if minimal.click_count_ready(owner, pt_pos, __nail_use_count) then 
-		local pt_node=minetest.get_node(pt_pos)
-		if not (pt_node.name == 'tech:stick' 
-			or minetest.get_item_group(pt_node.name, 'flora') > 0
-		) then
-			local pt_meta=minetest.get_meta(pt_pos)
-			if not pt_meta:contains('owner') then
-				pt_meta:set_string("owner", owner)
-				pt_meta:set_string('nailed', owner)
-				itemstack:take_item()
-				minimal.infotext_merge(pt_pos, nil, pt_meta)
+	if pointed_thing.type == 'node' then 
+		local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
+		if minimal.click_count_ready(owner, pt_pos, __nail_use_count) then 
+			local pt_node=minetest.get_node(pt_pos)
+			if not (pt_node.name == 'tech:stick' 
+				or minetest.get_item_group(pt_node.name, 'flora') > 0
+			) then
+				local pt_meta=minetest.get_meta(pt_pos)
+				if not pt_meta:contains('owner') then
+					pt_meta:set_string("owner", owner)
+					pt_meta:set_string('nailed', owner)
+					itemstack:take_item()
+					minimal.infotext_merge(pt_pos, nil, pt_meta)
+				end
 			end
+		else
+			-- play hammering sound
 		end
-	else
-		-- play hammering sound
 	end
-
 	return itemstack
 end
 
