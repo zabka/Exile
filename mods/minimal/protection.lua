@@ -4,35 +4,11 @@
 
 S=minimal.S
 local __nail_use_count = 3 
-local __ready = {}
-local ready = function(name, pos, count, timeout)
-	-- { playername = { timeout=time() + __timeout, count = __use_count } }
-	local timeout = timeout or 2 -- 2 second window for timeout
-	local count = count or 3 -- number of clicks
-	local ready = __ready[name]
-	if ready and ready.pos == pos then
-		ready.count = ready.count + 1
-		if os.time() < ready.timeout then
-			if ready.count >= count then
-				__ready[name]  = nil
-				return true
-			else
-				return false
-			end
-		end
-	end
-	__ready[name] = {
-		timeout = os.time() + timeout,
-		count = 1,
-		pos = pos,
-	}
-	return false
-end
 
 function minimal.protection_nail_use( itemstack, user, pointed_thing )
 	local owner = user:get_player_name()
 	local pt_pos=minetest.get_pointed_thing_position(pointed_thing,false)
-	if ready(owner, pt_pos, __nail_use_count) then 
+	if minimal.click_count_ready(owner, pt_pos, __nail_use_count) then 
 		local pt_node=minetest.get_node(pt_pos)
 		local pt_meta=minetest.get_meta(pt_pos)
 		if not pt_meta:contains('owner') then
