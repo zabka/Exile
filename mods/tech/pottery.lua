@@ -260,7 +260,7 @@ local after_place_oil_lamp = function(pos, placer, itemstack, pointed_thing)
 	   fuel = 0
 	end
 	meta:set_int("fuel", fuel)
-	meta:set_string("infotext", fuel_string(fuel))
+	minimal.infotext_merge(pos,'Status: '..fuel_string(fuel),meta)
 end
 
 --unfired oil clay lamp
@@ -354,7 +354,7 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 	      minetest.swap_node(pos, {name = 'tech:clay_oil_lamp'})
 	      minetest.registered_nodes["tech:clay_oil_lamp"].on_construct(pos)
 	      meta:set_int("fuel", fuel)
-	      meta:set_string("infotext", fuel_string(fuel))
+	      minimal.infotext_merge(pos,'Status: '..fuel_string(fuel),meta)
 	   end
 	end,
 
@@ -367,7 +367,7 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 		   if fuel and fuel < 1550 then
 		      fuel = fuel + math.random(1450,1550)
 		      meta:set_int("fuel", fuel)
-		      meta:set_string("infotext",fuel_string(fuel))
+		      minimal.infotext_merge(pos,'Status: '..fuel_string(fuel),meta)
 		      local name = clicker:get_player_name()
 		      if not minetest.is_creative_enabled(name) then
 			 itemstack:take_item()
@@ -432,7 +432,7 @@ minetest.register_node("tech:clay_oil_lamp", {
 	on_timer =function(pos, elapsed)
 		local meta = minetest.get_meta(pos)
 		local fuel = meta:get_int("fuel")
-		meta:set_string("infotext",fuel_string(fuel))
+		minimal.infotext_merge(pos,'Status: '..fuel_string(fuel),meta)
 		if fuel < 1 then
 			minetest.swap_node(pos, {name = "tech:clay_oil_lamp_unlit"})
 			--minetest.check_for_falling(pos)
@@ -449,7 +449,7 @@ minetest.register_node("tech:clay_oil_lamp", {
 		minetest.swap_node(pos, {name = 'tech:clay_oil_lamp_unlit'})
 		if fuel then
 		   meta:set_int("fuel", fuel)
-		   meta:set_string("infotext",fuel_string(fuel))
+		   minimal.infotext_merge(pos,'Status: '..fuel_string(fuel),meta)
 		end
 		return itemstack
 	end,

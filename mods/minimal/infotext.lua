@@ -27,7 +27,6 @@ infotext.fixed_order = {
 	"Contents",		-- Cooking Pot Contents
 	"Status",		-- Cooking Pot status
 	"Note",			-- Note field (added for cooking pot)
-	"Dye Test Bundle",	-- Dye Bundles
 }
 
 function table.removekey(table, key)
