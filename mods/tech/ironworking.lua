@@ -521,7 +521,7 @@ crafting.register_recipe({
 
 -- Protection Nails
 minetest.register_craftitem("tech:nails", {
-        description = S("Protection Nails"),
+        description = S("Protection Nails - Click 3 times"),
         inventory_image = "tech_iron_nails.png",
         stack_max = minimal.stack_max_light,
 	on_use = minimal.protection_nail_use
