@@ -64,10 +64,12 @@ minetest.register_on_mods_loaded(function()
 		minetest.override_item(oName, {
 			preserve_metadata = function(pos, oldNode, oldmeta, drops)
 print('-------OVERRIDE - preserve_metadata -'..oName..'------')
-				local imeta=drops[1]:get_meta()
-				minimal.metadata.preserve_metadata(imeta,oldmeta)
-				if type(old_preserve_metadata) == 'function' then
-					old_preserve_metadata(pos, oldNode, oldmeta, drops)
+				if drops[1] then
+					local imeta=drops[1]:get_meta()
+					minimal.metadata.preserve_metadata(imeta,oldmeta)
+					if type(old_preserve_metadata) == 'function' then
+						old_preserve_metadata(pos, oldNode, oldmeta, drops)
+					end
 				end
 
 			end,

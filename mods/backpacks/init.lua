@@ -116,7 +116,7 @@ local on_dig = function(pos, node, digger, width, height)
 end
 local on_receive_fields = function (pos, formname, fields, sender, width, height)
 	local label = fields.label
-	if label and label ~= '' then
+	if label then
 		local meta = minetest.get_meta(pos)
 		meta:set_string('label', label)
 		on_construct(pos, width, height)
