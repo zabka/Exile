@@ -520,7 +520,7 @@ local function dyepot_stir(pos, puncher)
       meta:set_int("dye_soak", soak + 1)
    end
    node.param2 = color*8 + spin_table[rotation]
-   minetest.swap_node(pos, node)
+   minimal.switch_node(pos, node)
    return false
 end
 

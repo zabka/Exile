@@ -67,7 +67,7 @@ function ncrafting.fire_pottery(pos, selfname, name, length)
 
 	--check if wet, falls to bits and thats it for your pot
 	if climate.get_rain(pos) or minetest.find_node_near(pos, 1, {"group:water"}) then
-		minetest.swap_node(pos, {name = 'nodes_nature:clay'})
+		minimal.switch_node(pos, {name = 'nodes_nature:clay'})
 		return false
 	end
 
@@ -134,7 +134,7 @@ function ncrafting.do_bake(pos, elapsed, heat, length, cookname, burnname)
       return true
    elseif baking == 0 then
       --finished firing
-      minetest.swap_node(pos, {name = name_cooked})
+      minimal.switch_node(pos, {name = name_cooked})
       ncrafting.set_treatment(meta, "cook")
       minetest.check_for_falling(pos)
       meta:set_int("baking", -1) -- prepare to burn it
@@ -180,7 +180,7 @@ function ncrafting.do_soak(pos, name, length)
    if minetest.get_item_group(node_a.name, "water") > 0 then
       if soaking <= 0 then
 	 --finished
-	 minetest.swap_node(pos, {name = name})
+	 minimal.switch_node(pos, {name = name})
 	 ncrafting.set_treatment(meta, "soak")
 	 return false
       else

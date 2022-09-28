@@ -351,7 +351,7 @@ minetest.register_node("tech:clay_oil_lamp_unlit", {
 	   local meta = minetest.get_meta(pos)
 	   local fuel = meta:get_int("fuel")
 	   if fuel and fuel > 0 then
-	      minetest.swap_node(pos, {name = 'tech:clay_oil_lamp'})
+	      minimal.switch_node(pos, {name = 'tech:clay_oil_lamp'})
 	      minetest.registered_nodes["tech:clay_oil_lamp"].on_construct(pos)
 	      meta:set_int("fuel", fuel)
 	      minimal.infotext_merge(pos,'Status: '..fuel_string(fuel),meta)
