@@ -443,7 +443,8 @@ minetest.register_node('tech:small_wood_fire_smoldering', {
 		local meta = minetest.get_meta(pos)
 		local fuel = meta:get_int("fuel")
 		if fuel < 1 then
-			minimal.switch_node(pos, {name = "tech:charcoal"})
+			-- Charcoal needs to start with fresh fuel value so no swap_node here
+			minetest.set_node(pos, {name = "tech:charcoal"})
 			return false
 		else
 			if can_smolder(pos, meta, 'tech:small_wood_fire', "tech:wood_ash") then
@@ -483,7 +484,8 @@ minetest.register_node('tech:large_wood_fire_smoldering', {
 		local meta = minetest.get_meta(pos)
 		local fuel = meta:get_int("fuel")
 		if fuel < 1 then
-			minimal.switch_node(pos, {name = "tech:charcoal_block"})
+			-- Charcoal needs to start with fresh fuel value so no swap_node here
+			minetest.set_node(pos, {name = "tech:charcoal_block"})
 			return false
 		else
 			if can_smolder(pos, meta, 'tech:large_wood_fire', "tech:wood_ash_block") then
