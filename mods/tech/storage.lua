@@ -102,7 +102,7 @@ minetest.register_node("tech:clay_storage_pot", {
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		on_receive_field(pos,formname,fields, sender, 8, 4)
+		on_receive_fields(pos,formname,fields, sender, 8, 4)
 	end,
 
 	can_dig = function(pos, player)
