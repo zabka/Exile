@@ -7,13 +7,12 @@ local S = nodes_nature.S
 
 local ran = math.random
 
-local c_alpha = minimal.compat_alpha
+
 
 --Water
 local list = {
-	{"salt_water", S("Salt Water"), 2, 230, 140, true},
-	{"freshwater", S("Freshwater"), 1, 180, 100, false},
-
+	{"salt_water", S("Salt Water"), 2, 230, 140, true,4},
+	{"freshwater", S("Freshwater"), 1, 180, 100, false,4},
 }
 
 
@@ -21,9 +20,10 @@ for i in ipairs(list) do
 	local name = list[i][1]
 	local desc = list[i][2]
 	local water_g = list[i][3]
-	local alpha = c_alpha.blend -- list[i][4]
+	local alpha = "blend" -- list[i][4]
 	local post_alpha = list[i][5]
 	local renew = list[i][6]
+	local range = list[i][7]
 
 
 
@@ -67,9 +67,9 @@ for i in ipairs(list) do
   	liquid_alternative_flowing = "nodes_nature:"..name.."_flowing",
   	liquid_alternative_source = "nodes_nature:"..name.."_source",
 	liquid_viscosity = 1,
-		liquid_range = 2,
+		liquid_range = range,
 		liquid_renewable = renew,
-	post_effect_color = {a = post_alpha, r = 30, g = 60, b = 90},
+	post_effect_color = {a = post_alpha*2, r = 30, g = 60, b = 90},
 	groups = {water = water_g, cools_lava = 1, puts_out_fire = 1, falling_node = 1, float = 1},
 	sounds = nodes_nature.node_sound_water_defaults(),
   })
@@ -114,7 +114,7 @@ for i in ipairs(list) do
   	drop = "",
   	drowning = 1,
   	liquidtype = "flowing",
-	liquid_range = 2,
+	liquid_range = range,
   	liquid_alternative_flowing = "nodes_nature:"..name.."_flowing",
   	liquid_alternative_source = "nodes_nature:"..name.."_source",
   	liquid_viscosity = 1,
@@ -207,13 +207,9 @@ minetest.register_node("nodes_nature:snow", {
 	},
 	temp_effect = -2,
 	temp_effect_max = 0,
-	groups = {crumbly = 3, falling_node = 1, temp_effect = 1, temp_pass = 1, 
-		puts_out_fire = 1, fall_damage_add_percent = -25,
-		edible = 1},
+	groups = {crumbly = 3, falling_node = 1, temp_effect = 1, temp_pass = 1, puts_out_fire = 1, fall_damage_add_percent = -25},
 	sounds = nodes_nature.node_sound_snow_defaults(),
-	on_rightclick = function (pos,node,clicker,itemstack,pointed_thing)
-		return minimal.slabs_combine(pos,node,itemstack,'nodes_nature:snow_block')
-	end,
+	on_use = exile_eatdrink
 })
 
 minetest.register_node("nodes_nature:snow_block", {
@@ -222,11 +218,9 @@ minetest.register_node("nodes_nature:snow_block", {
 	stack_max = minimal.stack_max_bulky,
 	temp_effect = -4,
 	temp_effect_max = 0,
-	groups = {crumbly = 3, falling_node = 1, temp_effect = 1, 
-		puts_out_fire = 1, cools_lava = 1, fall_damage_add_percent = -50,
-		edible = 1,
-	},
+	groups = {crumbly = 3, falling_node = 1, temp_effect = 1, puts_out_fire = 1, cools_lava = 1, fall_damage_add_percent = -50},
 	sounds = nodes_nature.node_sound_snow_defaults(),
+	on_use = exile_eatdrink
 })
 
 
@@ -268,7 +262,7 @@ minetest.register_node("nodes_nature:ice", {
 	tiles = {"nodes_nature_ice.png"},
 	stack_max = minimal.stack_max_bulky,
 	paramtype = "light",
-	use_texture_alpha = c_alpha.blend,
+	use_texture_alpha = "blend",
 	temp_effect = -4,
 	temp_effect_max = 0,
 	groups = {cracky = 3, crumbly = 1, cools_lava = 1, puts_out_fire = 1, slippery = 3, temp_effect = 1},
@@ -283,7 +277,7 @@ minetest.register_node("nodes_nature:sea_ice", {
 	tiles = {"nodes_nature_ice.png"},
 	paramtype = "light",
 	drop = "nodes_nature:ice",
-	use_texture_alpha = c_alpha.blend,
+	use_texture_alpha = "blend",
 	temp_effect = -4,
 	temp_effect_max = 0,
 	groups = {cracky = 3, crumbly = 1, cools_lava = 1, puts_out_fire = 1, slippery = 3, temp_effect = 1},

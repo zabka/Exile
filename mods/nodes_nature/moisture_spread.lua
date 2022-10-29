@@ -3,33 +3,70 @@
 --move wettness through sediment
 --other water effects
 
+--20221029: changelog notes:
+--fixe freezing of flowing water -> only source now
+--add dynamic water source movement downward.
+----Require expanding the flowing from 2 to 4 to avoid to many stranded water sources.
+----Require increasing chances and frequency of the related abm function. This imply higher rate of moisure related functions.
+--reduced probability of evaporation for stable ponds, with 0% if no flowing water right next to the source.
 
 ----------------------------------------------------------------
+local get_node = minetest.get_node
+local set_node = minetest.swap_node
+
 --freeze water
+--20221028: remove possibility to freez flowing water which could generate water source later
 local function water_freeze(pos, node)
 	local n_name = node.name
 
 	if climate.can_freeze(pos) then
 
-		local water_type = minetest.get_item_group(n_name, "water")
-		if water_type == 1 then
-		   minetest.set_node(pos, {name = "nodes_nature:ice"})
-		elseif water_type == 2 then
-		   minetest.set_node(pos, {name = "nodes_nature:sea_ice"})
+		if n_name == "nodes_nature:freshwater_source" then
+			minetest.set_node(pos, {name = "nodes_nature:ice"})
+		elseif n_name == "nodes_nature:salt_water_source" then
+			minetest.set_node(pos, {name = "nodes_nature:sea_ice"})
 		end
-
 	end
 end
 
 ----------------------------------------------------------------
 --evaporate water
 local function water_evap(pos, node)
-
 	--evaporation
 	if climate.can_evaporate(pos) then
+		--reduce stable pond evaporation rate by checking if there is no flowing right next to it
+		--the higher the number of flowing water next to it, the higher the chance to evaporate, else stable
+		local flowing_neighbors = 0
+		local check_pos = {x=pos.x+1, y=pos.y, z=pos.z}
+		local check_node = get_node(check_pos)
+		local check_node_name = check_node.name
+		if string.find(check_node_name,"flowing") then
+			flowing_neighbors = (flowing_neighbors + 1) * 2
+		end
+		check_pos = {x=pos.x-1, y=pos.y, z=pos.z}
+		check_node = get_node(check_pos)
+		check_node_name = check_node.name
+		if string.find(check_node_name,"flowing") then
+			flowing_neighbors = (flowing_neighbors + 1) * 2
+		end
+		check_pos = {x=pos.x, y=pos.y, z=pos.z+1}
+		check_node = get_node(check_pos)
+		check_node_name = check_node.name
+		if string.find(check_node_name,"flowing") then
+			flowing_neighbors = (flowing_neighbors + 1) * 2
+		end
+		check_pos = {x=pos.x, y=pos.y, z=pos.z-1}
+		check_node = get_node(check_pos)
+		check_node_name = check_node.name
+		if string.find(check_node_name,"flowing") then
+			flowing_neighbors = (flowing_neighbors + 1) * 2
+		end
+		-- else
 		--lose it's own water to the atmosphere
-		minetest.remove_node(pos)
-		return
+		if flowing_neighbors > math.random(0,100) then
+			minetest.remove_node(pos)
+			return
+		end
 	end
 
 end
@@ -40,20 +77,86 @@ local function fall_water(pos,node)
 
 	local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
 	local under_name = minetest.get_node(pos_under).name
-
-	if under_name == "nodes_nature:freshwater_flowing" or under_name == "nodes_nature:salt_water_flowing" then
+	
+	if under_name == "nodes_nature:freshwater_flowing" or under_name == "nodes_nature:salt_water_flowing" or under_name == "air" then
 		minetest.remove_node(pos)
 		minetest.set_node(pos_under, {name = node.name})
 		return pos
 	end
-
+	
 	--Fresh water should not float on top of the ocean
-	if ( under_name == "nodes_nature:salt_water_source" and
-	     node.name == "nodes_nature:freshwater_source" ) then
+	if under_name == "nodes_nature:salt_water_source" and node.name == "nodes_nature:freshwater_source" then
 	   minetest.remove_node(pos)
 	   return nil
 	end
+
 	return pos
+end
+
+--20221028: Adding water source migration
+--Code inspired from dynamic_liquids by FaceDeer 
+local all_direction_permutations = {
+	{{x=0,z=1},{x=0,z=-1},{x=1,z=0},{x=-1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=1},{x=0,z=-1},{x=-1,z=0},{x=1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=1},{x=1,z=0},{x=0,z=-1},{x=-1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=1},{x=1,z=0},{x=-1,z=0},{x=0,z=-1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=1},{x=-1,z=0},{x=0,z=-1},{x=1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=1},{x=-1,z=0},{x=1,z=0},{x=0,z=-1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=-1},{x=0,z=1},{x=-1,z=0},{x=1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=-1},{x=0,z=1},{x=1,z=0},{x=-1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=-1},{x=1,z=0},{x=-1,z=0},{x=0,z=1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=-1},{x=1,z=0},{x=0,z=1},{x=-1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=-1},{x=-1,z=0},{x=1,z=0},{x=0,z=1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=0,z=-1},{x=-1,z=0},{x=0,z=1},{x=1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=1,z=0},{x=0,z=1},{x=0,z=-1},{x=-1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=1,z=0},{x=0,z=1},{x=-1,z=0},{x=0,z=-1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=1,z=0},{x=0,z=-1},{x=0,z=1},{x=-1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=1,z=0},{x=0,z=-1},{x=-1,z=0},{x=0,z=1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=1,z=0},{x=-1,z=0},{x=0,z=1},{x=0,z=-1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=1,z=0},{x=-1,z=0},{x=0,z=-1},{x=0,z=1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=-1,z=0},{x=0,z=1},{x=1,z=0},{x=0,z=-1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=-1,z=0},{x=0,z=1},{x=0,z=-1},{x=1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=-1,z=0},{x=0,z=-1},{x=1,z=0},{x=0,z=1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=-1,z=0},{x=0,z=-1},{x=0,z=1},{x=1,z=0},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=-1,z=0},{x=1,z=0},{x=0,z=-1},{x=0,z=1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+	{{x=-1,z=0},{x=1,z=0},{x=0,z=1},{x=0,z=-1},{x=1,z=1},{x=1,z=-1},{x=-1,z=1},{x=-1,z=-1}},
+}
+-- POC behaviour, search for moving opportunity start from the center x with 1 checked nodes & 0 non checked nodes. The search on the inner circle start is random based on the all_direction_permutations matrix.
+--[[
+1	0	0	0	1	0	0	0	1
+0	1	0	0	1	0	0	1	0
+0	0	1	0	1	0	1	0	0
+0	0	0	1	1	1	0	0	0
+1	1	1	1	x	1	1	1	1
+0	0	0	1	1	1	0	0	0
+0	0	1	0	1	0	1	0	0
+0	1	0	0	1	0	0	1	0
+1	0	0	0	1	0	0	0	1
+--]]
+local function dynamic_water(pos,node)
+	local check_pos = {x=pos.x, y=pos.y-1, z=pos.z}
+	local check_node = get_node(check_pos)
+	local check_node_name = check_node.name
+
+	local perm = all_direction_permutations[math.random(24)]
+	local dirs
+	--the first loop is for the range of the search, based on the water flow range
+	for j=1,4 do
+		--the second loop is the search for the random swap possibilities
+		for i=1,8 do
+			dirs = perm[i]
+			check_pos.x = pos.x + dirs.x * j
+			check_pos.z = pos.z + dirs.z * j
+			check_node = get_node(check_pos)
+			check_node_name = check_node.name
+			if check_node_name == "nodes_nature:freshwater_flowing" or check_node_name == "nodes_nature:salt_water_flowing" then
+				set_node(pos, check_node)
+				set_node(check_pos, node)
+				return true
+			end
+		end
+	end
+	return false
 end
 
 local function water_handler(pos, node)
@@ -61,6 +164,9 @@ local function water_handler(pos, node)
    if pos == nil then
       return -- the water is not there anymore
    end
+   if dynamic_water(pos,node) then
+      return -- the water is not there anymore
+   end 
    if climate.active_temp < 2 then
       water_freeze(pos, node)
    else
@@ -72,8 +178,8 @@ end
 minetest.register_abm({
 	label = "Water Source Handling",
 	nodenames = {"nodes_nature:freshwater_source", "nodes_nature:salt_water_source"},
-	interval = 120,
-	chance = 10,
+	interval = 1,
+	chance = 1,
 	action = function(...)
 		water_handler(...)
 	end
